@@ -1,6 +1,6 @@
 CLion Tings
 cmake-build-debug
-.idea
+.idea/workspace.xml
 
 Prerequisites
 *.d
