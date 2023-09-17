@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// operational functions
 Matrix* matrix_create(int rows, int columns) {
 
     // allocate memory for the matrix
@@ -75,3 +76,170 @@ Matrix* matrix_copy(Matrix *matrix) {
     return copy_of_matrix;
 }
 
+// mathematical functions
+
+/*
+ * This methods won't change or free the input matrix.
+ * It creates a new matrix, which is modified and then returned.
+ * If we don't need the original matrix, we should consider just changing the original matrix and changing the method signature to void.
+ */
+
+Matrix* multiply(Matrix* matrix1, Matrix* matrix2) {
+
+    // check if the two matrices are of the same size
+    if(matrix1->rows != matrix2->rows || matrix1->columns != matrix2->columns) {
+        printf("ERROR: Size of matrices are not compatible! (Multiply)");
+        exit(1);
+    }
+
+    // crate result matrix
+    Matrix* result_matrix = matrix_create(matrix1->rows, matrix1->columns);
+
+    // multiply the values and save them into the result matrix
+    for (int i = 0; i < matrix1->rows; i++) {
+        for (int j = 0; j < ; j++) {
+            result_matrix->numbers[i][j] = matrix1->numbers[i][j] * matrix2->numbers[i][j];
+        }
+    }
+
+    // return resulting matrix
+    return  result_matrix;
+}
+
+Matrix* add(Matrix* matrix1, Matrix* matrix2) {
+
+    // check if the two matrices are of the same size
+    if(matrix1->rows != matrix2->rows || matrix1->columns != matrix2->columns) {
+        printf("ERROR: Size of matrices are not compatible! (Add)");
+        exit(1);
+    }
+
+    // crate result matrix
+    Matrix* result_matrix = matrix_create(matrix1->rows, matrix1->columns);
+
+    // add the value of the number in matrix 1 to the value of the number in matrix 2
+    for (int i = 0; i < matrix1->rows; i++) {
+        for (int j = 0; j < matrix1->columns; j++) {
+            result_matrix->numbers[i][j] = matrix1->numbers[i][j] + matrix2->numbers[i][j];
+        }
+    }
+
+    // return the result matrix
+    return result_matrix;
+}
+
+Matrix* subtract(Matrix* matrix1, Matrix* matrix2) {
+
+    // check if the two matrices are of the same size
+    if(matrix1->rows != matrix2->rows || matrix1->columns != matrix2->columns) {
+        printf("ERROR: Size of matrices are not compatible! (Subtract)");
+        exit(1);
+    }
+
+    // crate result matrix
+    Matrix* result_matrix = matrix_create(matrix1->rows, matrix1->columns);
+
+    // subtract the value of the number in matrix 2 from the value of the number in matrix 1
+    for (int i = 0; i < matrix1->rows; i++) {
+        for (int j = 0; j < matrix1->columns; j++) {
+            result_matrix->numbers[i][j] = matrix1->numbers[i][j] - matrix2->numbers[i][j];
+        }
+    }
+
+    // return the resulting matrix
+    return result_matrix;
+}
+
+Matrix* dot(Matrix* matrix1, Matrix* matrix2) {
+
+    // check if the dimensions of the matrices are compatible to calculate the dot product
+    if(matrix1->columns != matrix2->rows) {
+        printf("ERROR: Size of matrices are not compatible! (Dot-Product)");
+        exit(1);
+    }
+
+    // create a new matrix with the dimensions of the dot product;
+    Matrix* result_matrix = matrix_create(matrix1->rows, matrix2->columns);
+
+    // iterate through all rows of matrix 1
+    for (int i = 0; i < matrix1->rows; i++) {
+
+        // iterate though all columns of matrix 2
+        for (int j = 0; j < matrix2->columns; j++) {
+
+            // sum up the products and save them into the result matrix
+            result_matrix->numbers[i][j] = 0;
+            for (int k = 0; k < matrix2->rows; k++) {
+                result_matrix->numbers[i][j] += matrix1[i][k] * matrix2[k][j];
+            }
+        }
+    }
+
+    // return result
+    return result_matrix;
+}
+
+Matrix* apply(double (*function)(double), Matrix* matrix) {
+
+    // create a new matrix used to calculate the result
+    Matrix* result_matrix = matrix_create(matrix->rows, matrix->columns);
+
+    // apply the function to all values in the matrix
+    for (int i = 0; i < matrix->rows; i++) {
+        for (int j = 0; j < matrix->columns; j++) {
+            matrix->numbers[i][j] = (*function)(matrix->numbers[i][j]);
+        }
+    }
+
+    // return resulting matrix
+    return result_matrix;
+}
+
+Matrix* scale(Matrix* matrix, double value) {
+
+    // create a copy of the original matrix
+    Matrix* result_matrix = matrix_copy(matrix);
+
+    // iterate over all numbers in the matrix and multiply by the scalar value
+    for (int i = 0; i < result_matrix->rows; i++) {
+        for (int j = 0; j < result_matrix->columns; j++) {
+            result_matrix->numbers[i][j] *= value;
+        }
+    }
+
+    // return the copy
+    return result_matrix;
+}
+
+Matrix* addScalar(Matrix* matrix, double value) {
+
+    // create a copy of the original matrix
+    Matrix* result_matrix = matrix_copy(matrix);
+
+    // iterate over all numbers in the matrix and add the scalar value
+    for (int i = 0; i < result_matrix->rows; i++) {
+        for (int j = 0; j < result_matrix->columns; j++) {
+            result_matrix->numbers[i][j] += value;
+        }
+    }
+
+    // return the copy
+    return result_matrix;
+}
+
+Matrix* transpose(Matrix* matrix) {
+
+    // create a new matrix of the size n-m, based on the original matrix of size m-n
+    Matrix* result_matrix = matrix_create(matrix->columns, matrix->rows);
+
+    // copy the values from the original into the correct place in the copy
+    for (int i = 0; i < matrix->rows; i++) {
+        for (int j = 0; j < matrix->columns; j++) {
+            result_matrix->numbers[j][i] = matrix->numbers[i][j];
+        }
+    }
+
+    // return the result matrix
+    return result_matrix;
+
+}
