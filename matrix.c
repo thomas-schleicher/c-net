@@ -1,6 +1,7 @@
 #include "matrix.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 // operational functions
 Matrix* matrix_create(int rows, int columns) {
@@ -244,7 +245,6 @@ Matrix* transpose(Matrix* matrix) {
 
 }
 
-
 Matrix* matrix_flatten(Matrix* matrix, int axis) {
     // Axis = 0 -> Column Vector, Axis = 1 -> Row Vector
     Matrix* result_matrix;
@@ -256,7 +256,7 @@ Matrix* matrix_flatten(Matrix* matrix, int axis) {
     else if (axis == 1) {
         result_matrix = matrix_create(1, matrix -> rows * matrix -> columns);
     } else {
-        printf("ERROR: Argument must be 1 or 0 (matrix_flatten");
+        printf("ERROR: Argument must be 1 or 0 (matrix_flatten)");
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < matrix->rows; i++) {
@@ -265,5 +265,41 @@ Matrix* matrix_flatten(Matrix* matrix, int axis) {
             else if (axis == 1) result_matrix->numbers[0][i * matrix->columns + j] = matrix->numbers[i][j];
         }
     }
-    return mat;
+    return result_matrix;
+}
+
+int matrix_argmax(Matrix* matrix) {
+    // Expects a Mx1 matrix
+    if (matrix->columns != 1){
+        printf("ERROR: Matrix is not Mx1 (matrix_argmax)");
+        exit(EXIT_FAILURE);
+    }
+    double max_value = 0;
+    int max_index = 0;
+    for (int i = 0; i < matrix->rows; i++) {
+        if (matrix->numbers[i][0] > max_value) {
+            max_value = matrix->numbers[i][0];
+            max_index = i;
+        }
+    }
+    return max_index;
+}
+
+void matrix_randomize(Matrix* matrix, int n) {
+    //make a min and max
+    int min = -1.0 / sqrt(n);
+    int max = 1.0 / sqrt(n);
+    //calculate difference
+    double difference = max - min;
+    //move decimal
+    int scale = 10000
+    int scaled_difference = (int)(difference * scale);
+    //calculate final random int and move decimal back
+    double random_result = min + (1.0 * (rand() % scaled_difference) / scale );
+
+    for (int i = 0; i < matrix->rows; i++) {
+        for (int j = 0; j < matrix->columns; j++) {
+            matrix->numbers[i][j] = random_result;
+        }
+    }
 }
