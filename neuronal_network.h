@@ -1,5 +1,8 @@
 #pragma once
 
+#include "matrix.h"
+#include "image.h"
+
 typedef struct {
     int input_size;
     //Matrix* input; as local variable given to function
@@ -13,7 +16,7 @@ typedef struct {
     Matrix* weights_3;
     Matrix* bias_3;
 
-    int output_size = 10;
+    int output_size;
     Matrix* weights_output;
     //Matrix* bias_output; // do we need it?
     //Matrix* output; as local variable given to function
