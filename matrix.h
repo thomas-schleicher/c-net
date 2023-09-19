@@ -5,6 +5,8 @@ typedef struct {
     double **numbers;
 } Matrix;
 
+static const int scaling_value = 10000;
+
 // operational functions
 Matrix* matrix_create(int rows, int columns);
 void matrix_fill(Matrix* matrix, double value);

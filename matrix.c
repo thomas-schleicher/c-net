@@ -339,20 +339,20 @@ int matrix_argmax(Matrix* matrix) {
 }
 
 void matrix_randomize(Matrix* matrix, int n) {
+
     //make a min and max
-    int min = -1.0 / sqrt(n);
-    int max = 1.0 / sqrt(n);
+    double min = -1.0f / sqrt(n);
+    double max = 1.0f / sqrt(n);
+
     //calculate difference
     double difference = max - min;
-    //move decimal
-    int scale = 10000;
-    int scaled_difference = (int)(difference * scale);
-    //calculate final random int and move decimal back
-    double random_result = min + (1.0 * (rand() % scaled_difference) / scale );
 
+    //move decimal
+    int scaled_difference = (int)(difference * scaling_value);
+    
     for (int i = 0; i < matrix->rows; i++) {
         for (int j = 0; j < matrix->columns; j++) {
-            matrix->numbers[i][j] = random_result;
+            matrix->numbers[i][j] = min + (1.0 * (rand() % scaled_difference) / scaling_value);
         }
     }
 }

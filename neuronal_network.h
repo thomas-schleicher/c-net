@@ -25,6 +25,8 @@ typedef struct {
 
 } Neural_Network;
 
+static const int MAX_BYTES = 100;
+
 Neural_Network* new_network(int input_size, int hidden_size, int output_size, double learning_rate);
 //void print_network(Neural_Network* network);
 void free_network(Neural_Network* network);

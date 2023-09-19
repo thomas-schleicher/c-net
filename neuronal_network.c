@@ -39,11 +39,7 @@ void free_network(Neural_Network* network){
 
 void save_network(Neural_Network* network) {
 
-    // create file name and file string
-    time_t seconds;
-    time(&seconds);
-    char* file_name = "../networks/";
-    sprintf(file_name, "%ld", seconds);
+    char* file_name = "../networks/newest_network.txt";
 
     // create file
     FILE* save_file = fopen(file_name, "w");
@@ -81,7 +77,31 @@ void save_network(Neural_Network* network) {
 }
 
 Neural_Network* load_network(char* file) {
-    return NULL;
+
+    // create file pointer and open file
+    FILE* save_file = fopen(file, "r");
+
+    // check if file could be opened
+    if(save_file == NULL) {
+        printf("ERROR: File could not be opened/found! (load_network)");
+        exit(1);
+    }
+
+    // read & store the information on the size of the network from the save file
+    char buffer[MAX_BYTES];
+    fgets(buffer, MAX_BYTES, save_file);
+    int input_size = (int) strtol(buffer, NULL, 10);
+    fgets(buffer, MAX_BYTES, save_file);
+    int hidden_size = (int) strtol(buffer, NULL, 10);
+    fgets(buffer, MAX_BYTES, save_file);
+    int output_size = (int) strtol(buffer, NULL, 10);
+
+    // create a new network to fill with the saved data
+    Neural_Network* saved_network = new_network(input_size, hidden_size, output_size, 0);
+
+
+
+    return saved_network;
 }
 
 //double predict_images(Neural_Network* network, Image** images, int amount) {
@@ -117,5 +137,5 @@ Neural_Network* load_network(char* file) {
 //    return result;
 //}
 
-void train_network(Neural_Network* network, Matrix* input, Matrix* output);
-void batch_train_network(Neural_Network* network, Image** images, int size);
+//void train_network(Neural_Network* network, Matrix* input, Matrix* output);
+//void batch_train_network(Neural_Network* network, Image** images, int size);
