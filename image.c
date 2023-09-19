@@ -4,29 +4,15 @@
 #include "image.h"
 #include "matrix.h"
 
-int endian_swap(int input) {
-    return ((input >> 24) & 0xff) |      // move byte 3 to byte 0
-           ((input << 8) & 0xff0000) |   // move byte 1 to byte 2
-           ((input >> 8) & 0xff00) |     // move byte 2 to byte 1
-           ((input << 24) & 0xff000000); // byte 0 to byte 3
-}
-
-int validate_files(FILE* image_file, FILE* label_file) {
-
-    // read magic number from files
-    int magic_number_label, magic_number_images;
-    fread(&magic_number_label, 4, 1, label_file);
-    fread(&magic_number_images, 4, 1, image_file);
-
-    // compare magic numbers with pre-defined value
-    if(endian_swap(magic_number_label) != 2049 || endian_swap(magic_number_images) != 2051) {
-        return 0;
+void big_endian_to_c_uint(const char * bytes, void * target, int size) {
+    char* helper = (char*)target;
+    for(int i = 0; i < size; i++){
+        *(helper+i) = *(bytes+size-i-1);
     }
-
-    return 1;
 }
 
-Image** import_images(char* image_file_string, char* label_file_string, int number_of_images) {
+
+Image** import_images(char* image_file_string, char* label_file_string, unsigned int* _number_imported, unsigned int count) {
 
     // create file pointer for the image and label data
     FILE* image_file = fopen(image_file_string, "r");
@@ -39,20 +25,79 @@ Image** import_images(char* image_file_string, char* label_file_string, int numb
     }
 
     // check magic number of the files
-    if(validate_files(image_file, label_file)) {
-        printf("ERROR: File validation failed! (validate_files)");
+    char word_buffer[4];
+    int buffer_size = sizeof(word_buffer);
+
+    unsigned int magic_number_label, magic_number_images, label_count, image_count;
+
+    //Read description of label file
+    fread(word_buffer, buffer_size, 1, label_file);
+    big_endian_to_c_uint(word_buffer, &magic_number_label, buffer_size);
+
+    fread(word_buffer, 4, 1, label_file);
+    big_endian_to_c_uint(word_buffer, &label_count, buffer_size);
+
+
+    //Read description of file
+    fread(word_buffer, 4, 1, image_file);
+    big_endian_to_c_uint(word_buffer, &magic_number_images, buffer_size);
+
+    fread(word_buffer, 4, 1, image_file);
+    big_endian_to_c_uint(word_buffer, &image_count, buffer_size);
+
+    // compare magic numbers with pre-defined value
+    if(magic_number_label != MAGIC_NUMBER_LABEL || magic_number_images != MAGIC_NUMBER_IMAGES) {
+        printf("TrainingData or Labels are malformed. Exiting...");
+        exit(1);
+    }
+    if(label_count != image_count){
+        printf("Number of images and labels does not match. Exiting...");
         exit(1);
     }
 
+    if(count == 0){
+        count = image_count;
+    }
 
-    // Jakob Section
+    if(count > image_count){
+        count = image_count;
+        printf("Number of images exceeds number of available images. Loading all available images");
+    }
 
+    int image_height, image_width, image_length;
+    //read image dimensions;
+    fread(word_buffer, 4, 1, image_file);
+    big_endian_to_c_uint(word_buffer, &image_height, buffer_size);
+
+    fread(word_buffer, 4, 1, image_file);
+    big_endian_to_c_uint(word_buffer, &image_width, 4);
+
+    image_length = image_height*image_width;
 
     // allocate memory for the storage of images
-    Image** images = malloc(sizeof(Image) * number_of_images);
+    Image** images = malloc(sizeof(Image*) * count);
+    if(!images){
+        printf("not enough memory");
+        exit(1);
+    }
+
+    unsigned char byteBuffer[image_length];
+    for(int i = 0; i < count; i++){
+        images[i] = malloc(sizeof(Image));
+        fread(&images[i]->label, 1, 1, label_file);
+        fread(&byteBuffer, image_width*image_height, 1, image_file);
+        images[i]->pixel_values = matrix_create(image_height, image_width);
+
+        for(int j = 0; j < image_length; j++) {
+            images[i]->pixel_values->numbers[j / image_width][j % image_width] = byteBuffer[j] / 255.0;
+        }
+    }
+
+    if(_number_imported != NULL)*_number_imported = count;
 
     fclose(image_file);
     fclose(label_file);
+    return images;
 }
 
 void img_print (Image* img) {
@@ -60,7 +105,17 @@ void img_print (Image* img) {
     //print the image
     matrix_print(img->pixel_values);
     //print the number of the image
-    printf("Number it is supposed to be: %d\n", img->image_label);
+    printf("Number it is supposed to be: %d\n", img->label);
+}
+
+void img_visualize(Image* img){
+    for(int i = 0; i < img->pixel_values->rows; i++){
+        for(int j = 0; j < img->pixel_values->columns; j++){
+            img->pixel_values->numbers[i][j] > 0.5 ? putc('#', stdout) : putc(' ', stdout);
+        }
+        putc('\n', stdout);
+    }
+    printf("Should be %d", img->label);
 }
 
 void img_free (Image* img) {
