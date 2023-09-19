@@ -79,7 +79,7 @@ Matrix* matrix_copy(Matrix *matrix) {
 // mathematical functions
 
 /*
- * This methods won't change or free the input matrix.
+ * These methods won't change or free the input matrix.
  * It creates a new matrix, which is modified and then returned.
  * If we don't need the original matrix, we should consider just changing the original matrix and changing the method signature to void.
  */
