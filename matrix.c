@@ -244,6 +244,21 @@ Matrix* transpose(Matrix* matrix) {
 
 }
 
+//file operations
+void matrix_save(Matrix* matrix, char* file_string){
+    FILE *fptr = fopen(file_string, "w+");
+    if(!fptr){
+        printf("Unable to get handle for \"%s\"", file_string);
+        exit(1);
+    }
+    for(int i = 0; i < matrix->rows; i++){
+        for(int j = 0; j < matrix->columns; j++){
+            fprintf(fptr, "%f.12 ", matrix->numbers[i][j]);
+        }
+        fputc('\n', fptr);
+    }
+}
+
 
 Matrix* matrix_flatten(Matrix* matrix, int axis) {
     // Axis = 0 -> Column Vector, Axis = 1 -> Row Vector
@@ -265,5 +280,5 @@ Matrix* matrix_flatten(Matrix* matrix, int axis) {
             else if (axis == 1) result_matrix->numbers[0][i * matrix->columns + j] = matrix->numbers[i][j];
         }
     }
-    return mat;
+    return result_matrix;
 }
