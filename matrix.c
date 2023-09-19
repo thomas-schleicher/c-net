@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#define MAX_BYTES 100
 
 // operational functions
 Matrix* matrix_create(int rows, int columns) {
@@ -252,12 +253,40 @@ void matrix_save(Matrix* matrix, char* file_string){
         printf("Unable to get handle for \"%s\"", file_string);
         exit(1);
     }
+    fprintf(fptr, "%d\n", matrix->rows);
+    fprintf(fptr, "%d\n", matrix->columns);
+
     for(int i = 0; i < matrix->rows; i++){
         for(int j = 0; j < matrix->columns; j++){
-            fprintf(fptr, "%f.12 ", matrix->numbers[i][j]);
+            fprintf(fptr, "%.10f\n", matrix->numbers[i][j]);
         }
-        fputc('\n', fptr);
     }
+    printf("saved matrix to %s", file_string);
+    fclose(fptr);
+}
+
+Matrix* matrix_load(char* file_string){
+    FILE *fptr = fopen(file_string, "r");
+    if(!fptr){
+        printf("Could not open \"%s\"", file_string);
+        exit(1);
+    }
+    char buffer[MAX_BYTES];
+
+    fgets(buffer, MAX_BYTES, fptr);
+    int rows = (int)strtol(buffer, NULL, 10);
+    fgets(buffer, MAX_BYTES, fptr);
+    int cols = (int)strtol(buffer, NULL, 10);
+
+    Matrix *matrix = matrix_create(rows, cols);
+
+    for(int i = 0; i < rows; i++){
+        for(int j = 0; j < cols; j++){
+            fgets(buffer, MAX_BYTES, fptr);
+            matrix->numbers[i][j] = strtod(buffer, NULL);
+        }
+    }
+    return matrix;
 }
 
 
