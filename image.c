@@ -20,19 +20,24 @@ Img** import_images(char* image_file_string, char* label_file_string, int number
 }
 
 void img_print (Img* img) {
-
     //print the image
     matrix_print(img->pixel_values);
     //print the number of the image
     printf("Number it is supposed to be: %d\n", img->image_label);
 }
+
 void img_free (Img* img) {
+    //frees the matrix of image (deep free)
     matrix_free(img->pixel_values);
+    //frees the rest of img
     free(img);
 }
+
 void images_free (Img** images, int quantity){
+    //frees every single image
     for(int i=0;i<quantity;i++){
         img_free(images[i]);
     }
+    //frees the rest of images
     free(images);
 }
