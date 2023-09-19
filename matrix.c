@@ -265,5 +265,5 @@ Matrix* matrix_flatten(Matrix* matrix, int axis) {
             else if (axis == 1) result_matrix->numbers[0][i * matrix->columns + j] = matrix->numbers[i][j];
         }
     }
-    return mat;
+    return result_matrix;
 }

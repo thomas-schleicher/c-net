@@ -5,6 +5,6 @@
 #include "image.h"
 
 int main() {
-    Image** images = import_images("train-images.idx3-ubyte", "train-labels.idx3-ubyte", 20);
+    Image** images = import_images("../data/train-images.idx3-ubyte", "../data/train-labels.idx1-ubyte", 20);
 
 }
