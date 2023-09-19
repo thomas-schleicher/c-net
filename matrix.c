@@ -1,6 +1,8 @@
 #include "matrix.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
+#define MAX_BYTES 100
 
 // operational functions
 Matrix* matrix_create(int rows, int columns) {
@@ -244,6 +246,49 @@ Matrix* transpose(Matrix* matrix) {
 
 }
 
+//file operations
+void matrix_save(Matrix* matrix, char* file_string){
+    FILE *fptr = fopen(file_string, "w+");
+    if(!fptr){
+        printf("Unable to get handle for \"%s\"", file_string);
+        exit(1);
+    }
+    fprintf(fptr, "%d\n", matrix->rows);
+    fprintf(fptr, "%d\n", matrix->columns);
+
+    for(int i = 0; i < matrix->rows; i++){
+        for(int j = 0; j < matrix->columns; j++){
+            fprintf(fptr, "%.10f\n", matrix->numbers[i][j]);
+        }
+    }
+    printf("saved matrix to %s", file_string);
+    fclose(fptr);
+}
+
+Matrix* matrix_load(char* file_string){
+    FILE *fptr = fopen(file_string, "r");
+    if(!fptr){
+        printf("Could not open \"%s\"", file_string);
+        exit(1);
+    }
+    char buffer[MAX_BYTES];
+
+    fgets(buffer, MAX_BYTES, fptr);
+    int rows = (int)strtol(buffer, NULL, 10);
+    fgets(buffer, MAX_BYTES, fptr);
+    int cols = (int)strtol(buffer, NULL, 10);
+
+    Matrix *matrix = matrix_create(rows, cols);
+
+    for(int i = 0; i < rows; i++){
+        for(int j = 0; j < cols; j++){
+            fgets(buffer, MAX_BYTES, fptr);
+            matrix->numbers[i][j] = strtod(buffer, NULL);
+        }
+    }
+    return matrix;
+}
+
 
 Matrix* matrix_flatten(Matrix* matrix, int axis) {
     // Axis = 0 -> Column Vector, Axis = 1 -> Row Vector
@@ -256,7 +301,7 @@ Matrix* matrix_flatten(Matrix* matrix, int axis) {
     else if (axis == 1) {
         result_matrix = matrix_create(1, matrix -> rows * matrix -> columns);
     } else {
-        printf("ERROR: Argument must be 1 or 0 (matrix_flatten");
+        printf("ERROR: Argument must be 1 or 0 (matrix_flatten)");
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < matrix->rows; i++) {
@@ -266,4 +311,40 @@ Matrix* matrix_flatten(Matrix* matrix, int axis) {
         }
     }
     return result_matrix;
+}
+
+int matrix_argmax(Matrix* matrix) {
+    // Expects a Mx1 matrix
+    if (matrix->columns != 1){
+        printf("ERROR: Matrix is not Mx1 (matrix_argmax)");
+        exit(EXIT_FAILURE);
+    }
+    double max_value = 0;
+    int max_index = 0;
+    for (int i = 0; i < matrix->rows; i++) {
+        if (matrix->numbers[i][0] > max_value) {
+            max_value = matrix->numbers[i][0];
+            max_index = i;
+        }
+    }
+    return max_index;
+}
+
+void matrix_randomize(Matrix* matrix, int n) {
+    //make a min and max
+    int min = -1.0 / sqrt(n);
+    int max = 1.0 / sqrt(n);
+    //calculate difference
+    double difference = max - min;
+    //move decimal
+    int scale = 10000;
+    int scaled_difference = (int)(difference * scale);
+    //calculate final random int and move decimal back
+    double random_result = min + (1.0 * (rand() % scaled_difference) / scale );
+
+    for (int i = 0; i < matrix->rows; i++) {
+        for (int j = 0; j < matrix->columns; j++) {
+            matrix->numbers[i][j] = random_result;
+        }
+    }
 }
