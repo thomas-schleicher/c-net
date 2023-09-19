@@ -114,7 +114,7 @@ Matrix* add(Matrix* matrix1, Matrix* matrix2) {
         exit(1);
     }
 
-    // crate result matrix
+    // create result matrix
     Matrix* result_matrix = matrix_create(matrix1->rows, matrix1->columns);
 
     // add the value of the number in matrix 1 to the value of the number in matrix 2
@@ -136,7 +136,7 @@ Matrix* subtract(Matrix* matrix1, Matrix* matrix2) {
         exit(1);
     }
 
-    // crate result matrix
+    // create result matrix
     Matrix* result_matrix = matrix_create(matrix1->rows, matrix1->columns);
 
     // subtract the value of the number in matrix 2 from the value of the number in matrix 1
@@ -242,4 +242,28 @@ Matrix* transpose(Matrix* matrix) {
     // return the result matrix
     return result_matrix;
 
+}
+
+
+Matrix* matrix_flatten(Matrix* matrix, int axis) {
+    // Axis = 0 -> Column Vector, Axis = 1 -> Row Vector
+    Matrix* result_matrix;
+    // Column Vector
+    if (axis == 0) {
+        result_matrix = matrix_create(matrix -> rows * matrix -> columns, 1);
+    }
+    // Row Vector
+    else if (axis == 1) {
+        result_matrix = matrix_create(1, matrix -> rows * matrix -> columns);
+    } else {
+        printf("ERROR: Argument must be 1 or 0 (matrix_flatten");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < matrix->rows; i++) {
+        for (int j = 0; j < matrix->columns; j++) {
+            if (axis == 0) result_matrix->numbers[i * matrix->columns + j][0] = matrix->numbers[i][j];
+            else if (axis == 1) result_matrix->numbers[0][i * matrix->columns + j] = matrix->numbers[i][j];
+        }
+    }
+    return mat;
 }
