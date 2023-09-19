@@ -1,6 +1,8 @@
 #pragma once
 
+#include <stdlib.h>
 #include <stdio.h>
+
 #include "image.h"
 #include "matrix.h"
 
@@ -21,11 +23,16 @@ void img_print (Img* img) {
 
     //print the image
     matrix_print(img->pixel_values);
-
-    //print the label of the image
-    printf("%d", img->image_label);
+    //print the number of the image
+    printf("Number it is supposed to be: %d\n", img->image_label);
 }
-
 void img_free (Img* img) {
-
+    matrix_free(img->pixel_values);
+    free(img);
+}
+void images_free (Img** images, int quantity){
+    for(int i=0;i<quantity;i++){
+        img_free(images[i]);
+    }
+    free(images);
 }
