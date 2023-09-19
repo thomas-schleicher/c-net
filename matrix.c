@@ -49,7 +49,7 @@ void matrix_free(Matrix* matrix) {
 void matrix_print(Matrix *matrix) {
 
     // print the dimensions of the matrix
-    printf("Rows: %d, Columns: %d", matrix->rows, matrix->columns);
+    printf("Rows: %d, Columns: %d\n", matrix->rows, matrix->columns);
 
     // loop through all values and format them into the correct matrix representation
     for (int i = 0; i < matrix->rows; i++) {
@@ -92,12 +92,12 @@ Matrix* multiply(Matrix* matrix1, Matrix* matrix2) {
         exit(1);
     }
 
-    // crate result matrix
+    // create result matrix
     Matrix* result_matrix = matrix_create(matrix1->rows, matrix1->columns);
 
     // multiply the values and save them into the result matrix
     for (int i = 0; i < matrix1->rows; i++) {
-        for (int j = 0; j < ; j++) {
+        for (int j = 0; j < matrix1->columns; j++) {
             result_matrix->numbers[i][j] = matrix1->numbers[i][j] * matrix2->numbers[i][j];
         }
     }
@@ -170,7 +170,7 @@ Matrix* dot(Matrix* matrix1, Matrix* matrix2) {
             // sum up the products and save them into the result matrix
             result_matrix->numbers[i][j] = 0;
             for (int k = 0; k < matrix2->rows; k++) {
-                result_matrix->numbers[i][j] += matrix1[i][k] * matrix2[k][j];
+                result_matrix->numbers[i][j] += matrix1->numbers[i][k] * matrix2->numbers[k][j];
             }
         }
     }
