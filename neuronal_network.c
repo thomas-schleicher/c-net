@@ -52,20 +52,19 @@ double predict_images(Neural_Network* network, Image** images, int amount) {
 Matrix* predict_image(Neural_Network* network, Image*);
 
 Matrix* predict(Neural_Network* network, Matrix* image_data) {
-    Matrix* hidden1_inputs = dot(network->weights_1, image_data);
-    Matrix* hidden1_outputs = apply(relu, hidden1_inputs);
+    Matrix* hidden1_outputs = apply(relu, add(dot(network->weights_1, image_data), network->bias_1));
 
-    Matrix* hidden2_inputs = dot(network->weights_2, hidden1_outputs);
-    Matrix* hidden2_outputs = apply(relu, hidden2_inputs);
+    Matrix* hidden2_outputs = apply(relu, add(dot(network->weights_2, hidden1_outputs), network->bias_2));
 
+    Matrix* hidden3_outputs = apply(relu, add(dot(network->weights_3, hidden2_outputs), network->bias_3));
 
-    Matrix* final_inputs = dot(net->output_weights, hidden_outputs);
-    Matrix* final_outputs = apply(sigmoid, final_inputs);
+    Matrix* final_outputs = apply(relu, dot(network->weights_output, hidden3_outputs));
+
     Matrix* result = softmax(final_outputs);
 
-    matrix_free(hidden_inputs);
-    matrix_free(hidden_outputs);
-    matrix_free(final_inputs);
+    matrix_free(hidden1_outputs);
+    matrix_free(hidden2_outputs);
+    matrix_free(hidden3_outputs);
     matrix_free(final_outputs);
 
     return result;
