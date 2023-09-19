@@ -1,5 +1,3 @@
-#pragma once
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,7 +14,7 @@ Image** import_images(char* image_file_string, char* label_file_string, int numb
     if(image_file == NULL || label_file == NULL) {
         printf("ERROR: File could not be opened! (import_images)");
     }
-
+    char ch;
     do {
         ch = fgetc(label_file);
         printf("%c", ch);
@@ -33,7 +31,7 @@ Image** import_images(char* image_file_string, char* label_file_string, int numb
     fclose(label_file);
 }
 
-void img_print (Img* img) {
+void img_print (Image* img) {
 
     //print the image
     matrix_print(img->pixel_values);
@@ -42,6 +40,6 @@ void img_print (Img* img) {
     printf("%d", img->image_label);
 }
 
-void img_free (Img* img) {
+void img_free (Image* img) {
 
 }
