@@ -29,7 +29,7 @@ Neural_Network* new_network(int input_size, int hidden_size, int output_size, do
 //void print_network(Neural_Network* network);
 void free_network(Neural_Network* network);
 
-void save_network(Neural_Network* network, char* file);
+void save_network(Neural_Network* network);
 Neural_Network* load_network(char* file);
 
 double predict_images(Neural_Network* network, Image** images, int amount);

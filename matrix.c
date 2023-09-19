@@ -248,21 +248,29 @@ Matrix* transpose(Matrix* matrix) {
 
 //file operations
 void matrix_save(Matrix* matrix, char* file_string){
-    FILE *fptr = fopen(file_string, "w+");
-    if(!fptr){
-        printf("Unable to get handle for \"%s\"", file_string);
+
+    // open the file in append mode
+    FILE *file = fopen(file_string, "a");
+
+    // check if the file could be found
+    if(file == NULL) {
+        printf("ERROR: Unable to get handle for \"%s\"! (matrix_save)", file_string);
         exit(1);
     }
-    fprintf(fptr, "%d\n", matrix->rows);
-    fprintf(fptr, "%d\n", matrix->columns);
 
+    // save the size of the matrix
+    fprintf(file, "%d\n", matrix->rows);
+    fprintf(file, "%d\n", matrix->columns);
+
+    // save all the numbers of the matrix into the file
     for(int i = 0; i < matrix->rows; i++){
         for(int j = 0; j < matrix->columns; j++){
-            fprintf(fptr, "%.10f\n", matrix->numbers[i][j]);
+            fprintf(file, "%.10f\n", matrix->numbers[i][j]);
         }
     }
-    printf("saved matrix to %s", file_string);
-    fclose(fptr);
+
+    // close the file
+    fclose(file);
 }
 
 Matrix* matrix_load(char* file_string){
