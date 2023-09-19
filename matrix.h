@@ -11,10 +11,9 @@ void matrix_fill(Matrix* matrix, double value);
 void matrix_free(Matrix* matrix);
 void matrix_print(Matrix *matrix);
 Matrix* matrix_copy(Matrix *matrix);
-
-// TODO:
 void matrix_save(Matrix* matrix, char* file_string);
 Matrix* matrix_load(char* file_string);
+
 void matrix_randomize(Matrix* matrix, int n); // don't understand the usage of the n
 int matrix_argmax(Matrix* matrix);
 Matrix* matrix_flatten(Matrix* matrix, int axis);
