@@ -5,12 +5,14 @@
 #include <math.h>
 
 double sigmoid(double input);
-Matrix* sigmoidPrime(Matrix* m);
+double sigmoid_derivative(double x);
 
-        Matrix* softmax(Matrix* matrix);
+Matrix* softmax(Matrix* matrix);
 double square(double input);
 
 double loss_function(Matrix* output_matrix, int image_label);
+
+void backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old);
 
 Neural_Network* new_network(int input_size, int hidden_size, int output_size, double learning_rate){
     Neural_Network *network = malloc(sizeof(Neural_Network));
@@ -196,6 +198,9 @@ double cost_function(Matrix* calculated, int expected){
     calculated->numbers[expected] -= 1;
     apply(square, calculated);
 
+//    double loss = 0.5 * (target - output) * (target - output);
+
+    return 0;
 }
 
 void train_network(Neural_Network* network, Image *image, int label) {
@@ -243,53 +248,64 @@ void train_network(Neural_Network* network, Image *image, int label) {
 
     // other levels
 
-    Matrix* sigma_current = matrix_create(hidden3_outputs->rows, 1);
-    matrix_fill(sigma_current, 1);
-    temp_1 = subtract(sigma_current, hidden3_outputs);
-    temp_2 = multiply(temp_1, hidden3_outputs); // *sum(delta*weights)
-
-    for(int j=0;j<hidden3_outputs->rows;j++) {
-        double sum = 0;
-        for (int i = 0; i < sigma->rows; i++) {
-            sum += hidden3_outputs->numbers[j][i]*sigma->numbers[i][0];
-        }
-        temp_1->numbers[j][0]=sum;
-    }
-    sigma_current = multiply(temp_2, temp_1);
-    // sigma done
+    backPropagation(network->learning_rate, network->weights_3, network->bias_3, hidden3_outputs, hidden2_outputs, sigma);
+    backPropagation(network->learning_rate, network->weights_2, network->bias_2, hidden2_outputs, hidden1_outputs, sigma);
+    backPropagation(network->learning_rate, network->weights_1, network->bias_1, hidden1_outputs, input, sigma);
 
 
-
-
-    temp1 = transpose(hidden2_outputs);
-    temp2 = dot(sigma_current, temp1);
-    weights_delta = scale(temp2, network->learning_rate);
-    bias_delta = scale(sigma_current, network->learning_rate);
-
-
-
-    temp = add(weights_delta, network->weights_3);
-    matrix_free(network->weights_3);
-    network->weights_3 = temp;
-    temp = add(bias_delta, network->bias_3);
-    matrix_free(network->bias_3);
-    network->bias_3 = temp;
-
-    matrix_free(weights_delta);
-    matrix_free(bias_delta);
-
-
-
-
-
-
+    matrix_free(temp);
+    matrix_free(sigma);
     matrix_free(temp_1);
     matrix_free(temp_2);
     matrix_free(temp1);
     matrix_free(temp2);
-
-    //matrix_print(sigma);
+    matrix_free(input);
+    matrix_free(hidden1_outputs);
+    matrix_free(hidden2_outputs);
+    matrix_free(hidden3_outputs);
+    matrix_free(final_outputs);
 }
+
+void backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old) {
+    Matrix* sigma_new = matrix_create(current_layer_activation->rows, 1);
+    matrix_fill(sigma_new, 1);
+
+    Matrix* temp1 = subtract(sigma_new, current_layer_activation);
+    Matrix* temp2 = multiply(temp1, current_layer_activation); // *sum(delta*weights)
+
+    for(int i = 0; i < current_layer_activation->rows; i++) {
+        double sum = 0;
+        for (int j = 0; j < sigma_old->rows; j++) {
+            sum += current_layer_activation->numbers[i][j] * sigma_old->numbers[j][0];
+        }
+        temp1->numbers[i][0] = sum;
+    }
+    sigma_new = multiply(temp2, temp1);
+
+    // new sigma done
+
+    temp1 = transpose(previous_layer_activation);
+    temp2 = dot(sigma_new, temp1);
+    Matrix* weights_delta = scale(temp2, learning_rate);
+    Matrix* bias_delta = scale(sigma_new, learning_rate);
+
+    temp1 = add(weights_delta, weights);
+    matrix_free(weights);
+    weights = temp1;
+
+    temp1 = add(bias_delta, biases);
+    matrix_free(biases);
+    biases = temp1;
+
+    sigma_old = sigma_new;
+
+    matrix_free(sigma_new);
+    matrix_free(temp1);
+    matrix_free(temp2);
+    matrix_free(weights_delta);
+    matrix_free(bias_delta);
+}
+
 
 //void batch_train_network(Neural_Network* network, Image** images, int size);
 
@@ -297,14 +313,8 @@ double sigmoid(double input) {
     return 1.0 / (1 + exp(-1 * input));
 }
 
-Matrix* sigmoidPrime(Matrix* m) {
-    Matrix* ones = matrix_create(m->rows, m->columns);
-    matrix_fill(ones, 1);
-    Matrix* subtracted = subtract(ones, m);
-    Matrix* multiplied = multiply(m, subtracted);
-    matrix_free(ones);
-    matrix_free(subtracted);
-    return multiplied;
+double sigmoid_derivative(double x) {
+    return x * (1.0 - x);
 }
 
 Matrix* softmax(Matrix* matrix) {

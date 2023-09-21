@@ -14,6 +14,13 @@ int main() {
 
 //    Neural_Network* nn = load_network("../networks/test1.txt");
 
-    train_network(nn, images[0], 5);
+
+    for (int i = 0; i < 10000; ++i) {
+        train_network(nn, images[i], images[i]->label);
+    }
+
+    measure_network_accuracy(nn, images, 100);
+
+
 
 }
