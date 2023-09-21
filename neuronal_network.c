@@ -252,6 +252,7 @@ void train_network(Neural_Network* network, Image *image, int label) {
     // other levels
     Matrix* sigma2 = backPropagation(network->learning_rate, network->weights_3, network->bias_3, h3_outputs, h2_outputs, sigma1);
     Matrix* sigma3 = backPropagation(network->learning_rate, network->weights_2, network->bias_2, h2_outputs, h1_outputs, sigma2);
+
     Matrix* sigma4 = backPropagation(network->learning_rate, network->weights_1, network->bias_1, h1_outputs, input, sigma3);
 
     matrix_free(input);
@@ -320,8 +321,6 @@ Matrix* backPropagation(double learning_rate, Matrix* weights, Matrix* biases, M
     Matrix* temp6 = add(bias_delta, biases);
     matrix_free(biases);
     biases = temp6;
-
-    matrix_free(sigma_old);
 
     matrix_free(temp1);
     matrix_free(temp2);
