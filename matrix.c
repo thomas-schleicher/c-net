@@ -249,6 +249,16 @@ Matrix* transpose(Matrix* matrix) {
 
 }
 
+double matrix_sum(Matrix* matrix) {
+    double sum = 0;
+    for (int i = 0; i < matrix->rows; i++) {
+        for (int j = 0; j < matrix->columns; j++) {
+            sum += matrix->numbers[i][j];
+        }
+    }
+    return sum;
+}
+
 void matrix_save(Matrix* matrix, char* file_string){
 
     // open the file in append mode

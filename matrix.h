@@ -37,6 +37,7 @@ Matrix* apply(double (*function)(double), Matrix* matrix);
 Matrix* scale(Matrix* matrix, double value);
 Matrix* addScalar(Matrix* matrix, double value);
 Matrix* transpose(Matrix* matrix);
+double matrix_sum(Matrix* matrix);
 
 
 
