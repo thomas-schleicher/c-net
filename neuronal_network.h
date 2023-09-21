@@ -41,6 +41,3 @@ Matrix* predict(Neural_Network* network, Matrix* image_data);
 
 void train_network(Neural_Network* network, Matrix* input, Matrix* output);
 void batch_train_network(Neural_Network* network, Image** images, int size);
-
-double relu(double input);
-Matrix* softmax(Matrix* matrix);

@@ -4,6 +4,11 @@
 #include <time.h>
 #include <math.h>
 
+double relu(double input);
+Matrix* softmax(Matrix* matrix);
+double square(double input);
+double loss_function(Matrix* output_matrix, int image_label);
+
 Neural_Network* new_network(int input_size, int hidden_size, int output_size, double learning_rate){
     Neural_Network *network = malloc(sizeof(Neural_Network));
     // initialize networks variables
@@ -19,9 +24,7 @@ Neural_Network* new_network(int input_size, int hidden_size, int output_size, do
     network->bias_1 = matrix_create(hidden_size, 1);
     network->bias_2 = matrix_create(hidden_size, 1);
     network->bias_3 = matrix_create(hidden_size, 1);
-    network.bias_output = matrix_create(output_size, 1);
-
-
+    network->bias_output = matrix_create(output_size, 1);
 
     return network;
 }
@@ -50,7 +53,6 @@ void free_network(Neural_Network* network){
     matrix_free(network->bias_output);
     free(network);
 }
-
 
 void save_network(Neural_Network* network) {
 
@@ -168,6 +170,12 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
     return result;
 }
 
+double cost_function(Matrix* calculated, int expected){
+    calculated->numbers[expected] -= 1;
+    apply(square, calculated);
+
+}
+
 //void train_network(Neural_Network* network, Matrix* input, Matrix* output);
 //void batch_train_network(Neural_Network* network, Image** images, int size);
 
@@ -176,6 +184,10 @@ double relu(double input) {
         return 0.0;
     }
     return input;
+}
+
+double relu_derivative(double x) {
+    return (x > 0) ? 1 : 0;
 }
 
 Matrix* softmax(Matrix* matrix) {
@@ -193,4 +205,19 @@ Matrix* softmax(Matrix* matrix) {
         }
     }
     return result_matrix;
+}
+
+double square(double input) {
+    return input * input;
+}
+
+double loss_function(Matrix* output_matrix, int image_label) {
+    Matrix* temp = matrix_copy(output_matrix);
+
+    temp->numbers[1, image_label] -= 1;
+    apply(square, temp);
+
+    matrix_free(temp);
+
+    return matrix_sum(temp);;
 }
