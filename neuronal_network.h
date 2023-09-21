@@ -35,7 +35,7 @@ void free_network(Neural_Network* network);
 void save_network(Neural_Network* network);
 Neural_Network* load_network(char* file);
 
-double predict_images(Neural_Network* network, Image** images, int amount);
+double measure_network_accuracy(Neural_Network* network, Image** images, int amount);
 Matrix* predict_image(Neural_Network* network, Image* image);
 Matrix* predict(Neural_Network* network, Matrix* image_data);
 

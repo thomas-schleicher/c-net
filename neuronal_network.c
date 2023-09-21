@@ -126,7 +126,7 @@ Neural_Network* load_network(char* file) {
     return saved_network;
 }
 
-double predict_images(Neural_Network* network, Image** images, int amount) {
+double measure_network_accuracy(Neural_Network* network, Image** images, int amount) {
     int num_correct = 0;
     for (int i = 0; i < amount; i++) {
         Matrix* prediction = predict_image(network, images[i]);

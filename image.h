@@ -25,7 +25,7 @@ static const int MAGIC_NUMBER_IMAGES = 2051;
  * @param count maximum number of images to be loaded. If it is 0, all available images are loaded.
  * @return
  */
-Image ** import_images(char* image_file_string, char* label_file_string, unsigned int* number_imported, unsigned int count);
+Image ** import_images(char* image_file_string, char* label_file_string, int* number_imported, int count);
 void img_print (Image* image);
 void img_visualize(Image*image);
 void img_free (Image* image);

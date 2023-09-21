@@ -3,6 +3,7 @@
 
 #include "image.h"
 #include "matrix.h"
+#include "util.h"
 
 void big_endian_to_c_uint(const char * bytes, void * target, int size) {
     char* helper = (char*)target;
@@ -12,8 +13,8 @@ void big_endian_to_c_uint(const char * bytes, void * target, int size) {
 }
 
 
-Image** import_images(char* image_file_string, char* label_file_string, unsigned int* _number_imported, unsigned int count) {
-
+Image** import_images(char* image_file_string, char* label_file_string, int* _number_imported, int count) {
+    printf("Loading Images\n");
     // create file pointer for the image and label data
     FILE* image_file = fopen(image_file_string, "r");
     FILE* label_file = fopen(label_file_string, "r");
@@ -28,7 +29,7 @@ Image** import_images(char* image_file_string, char* label_file_string, unsigned
     char word_buffer[4];
     int buffer_size = sizeof(word_buffer);
 
-    unsigned int magic_number_label, magic_number_images, label_count, image_count;
+    int magic_number_label, magic_number_images, label_count, image_count;
 
     //Read description of label file
     fread(word_buffer, buffer_size, 1, label_file);
@@ -55,7 +56,7 @@ Image** import_images(char* image_file_string, char* label_file_string, unsigned
         exit(1);
     }
 
-    if(count == 0){
+    if(count <= 0){
         count = image_count;
     }
 
@@ -83,6 +84,9 @@ Image** import_images(char* image_file_string, char* label_file_string, unsigned
 
     unsigned char byteBuffer[image_length];
     for(int i = 0; i < count; i++){
+        if(i%1000 == 0){
+            updateBar(i*100/count);
+        }
         images[i] = malloc(sizeof(Image));
         fread(&images[i]->label, 1, 1, label_file);
         fread(&byteBuffer, image_width*image_height, 1, image_file);
@@ -97,6 +101,9 @@ Image** import_images(char* image_file_string, char* label_file_string, unsigned
 
     fclose(image_file);
     fclose(label_file);
+
+    updateBar(100);
+    printf("\n");
     return images;
 }
 
@@ -115,7 +122,7 @@ void img_visualize(Image* img){
         }
         putc('\n', stdout);
     }
-    printf("Should be %d", img->label);
+    printf("Should be %d\n", img->label);
 }
 
 void img_free (Image* img) {
