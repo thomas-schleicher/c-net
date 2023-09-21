@@ -155,19 +155,38 @@ Matrix* predict_image(Neural_Network* network, Image* image){
 }
 
 Matrix* predict(Neural_Network* network, Matrix* image_data) {
-    Matrix* hidden1_outputs = apply(sigmoid, add(dot(network->weights_1, image_data), network->bias_1));
+    Matrix* h1_dot = dot(network->weights_1, image_data);
+    Matrix* h1_add = add(h1_dot, network->bias_1);
+    Matrix* h1_outputs = apply(sigmoid, h1_add);
 
-    Matrix* hidden2_outputs = apply(sigmoid, add(dot(network->weights_2, hidden1_outputs), network->bias_2));
+    Matrix* h2_dot = dot(network->weights_2, h1_outputs);
+    Matrix* h2_add = add(h2_dot, network->bias_2);
+    Matrix* h2_outputs = apply(sigmoid, h2_add);
 
-    Matrix* hidden3_outputs = apply(sigmoid, add(dot(network->weights_3, hidden2_outputs), network->bias_3));
+    Matrix* h3_dot = dot(network->weights_3, h2_outputs);
+    Matrix* h3_add = add(h3_dot, network->bias_3);
+    Matrix* h3_outputs = apply(sigmoid, h3_add);
 
-    Matrix* final_outputs = apply(sigmoid, add(dot(network->weights_output, hidden3_outputs), network->bias_output));
+    Matrix* final_dot = dot(network->weights_output, h3_outputs);
+    Matrix* final_add = add(final_dot, network->bias_output);
+    Matrix* final_outputs = apply(sigmoid, final_add);
 
     Matrix* result = softmax(final_outputs);
 
-    matrix_free(hidden1_outputs);
-    matrix_free(hidden2_outputs);
-    matrix_free(hidden3_outputs);
+    matrix_free(h1_dot);
+    matrix_free(h1_add);
+    matrix_free(h1_outputs);
+
+    matrix_free(h2_dot);
+    matrix_free(h2_add);
+    matrix_free(h2_outputs);
+
+    matrix_free(h3_dot);
+    matrix_free(h3_add);
+    matrix_free(h3_outputs);
+
+    matrix_free(final_dot);
+    matrix_free(final_add);
     matrix_free(final_outputs);
 
     return result;
