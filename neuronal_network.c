@@ -156,7 +156,7 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
 
     Matrix* hidden3_outputs = apply(relu, add(dot(network->weights_3, hidden2_outputs), network->bias_3));
 
-    Matrix* final_outputs = apply(relu, dot(network->weights_output, hidden3_outputs));
+    Matrix* final_outputs = apply(relu, add(dot(network->weights_output, hidden3_outputs), network->bias_output));
 
     Matrix* result = softmax(final_outputs);
 
