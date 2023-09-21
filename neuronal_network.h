@@ -39,5 +39,5 @@ double measure_network_accuracy(Neural_Network* network, Image** images, int amo
 Matrix* predict_image(Neural_Network* network, Image* image);
 Matrix* predict(Neural_Network* network, Matrix* image_data);
 
-void train_network(Neural_Network* network, Matrix* input, Matrix* output);
+void train_network(Neural_Network* network, Image *image, int label);
 void batch_train_network(Neural_Network* network, Image** images, int size);

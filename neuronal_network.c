@@ -4,9 +4,12 @@
 #include <time.h>
 #include <math.h>
 
-double relu(double input);
-Matrix* softmax(Matrix* matrix);
+double sigmoid(double input);
+Matrix* sigmoidPrime(Matrix* m);
+
+        Matrix* softmax(Matrix* matrix);
 double square(double input);
+
 double loss_function(Matrix* output_matrix, int image_label);
 
 Neural_Network* new_network(int input_size, int hidden_size, int output_size, double learning_rate){
@@ -152,13 +155,13 @@ Matrix* predict_image(Neural_Network* network, Image* image){
 }
 
 Matrix* predict(Neural_Network* network, Matrix* image_data) {
-    Matrix* hidden1_outputs = apply(relu, add(dot(network->weights_1, image_data), network->bias_1));
+    Matrix* hidden1_outputs = apply(sigmoid, add(dot(network->weights_1, image_data), network->bias_1));
 
-    Matrix* hidden2_outputs = apply(relu, add(dot(network->weights_2, hidden1_outputs), network->bias_2));
+    Matrix* hidden2_outputs = apply(sigmoid, add(dot(network->weights_2, hidden1_outputs), network->bias_2));
 
-    Matrix* hidden3_outputs = apply(relu, add(dot(network->weights_3, hidden2_outputs), network->bias_3));
+    Matrix* hidden3_outputs = apply(sigmoid, add(dot(network->weights_3, hidden2_outputs), network->bias_3));
 
-    Matrix* final_outputs = apply(relu, add(dot(network->weights_output, hidden3_outputs), network->bias_output));
+    Matrix* final_outputs = apply(sigmoid, add(dot(network->weights_output, hidden3_outputs), network->bias_output));
 
     Matrix* result = softmax(final_outputs);
 
@@ -176,18 +179,31 @@ double cost_function(Matrix* calculated, int expected){
 
 }
 
-//void train_network(Neural_Network* network, Matrix* input, Matrix* output);
-//void batch_train_network(Neural_Network* network, Image** images, int size);
+void train_network(Neural_Network* network, Image *image, int label) {
 
-double relu(double input) {
-    if (input <= 0){
-        return 0.0;
-    }
-    return input;
+    Matrix* input = matrix_flatten(image->pixel_values, 0);
+
+    Matrix* hidden1_outputs = apply(sigmoid, add(dot(network->weights_1, input), network->bias_1));
+    Matrix* hidden2_outputs = apply(sigmoid, add(dot(network->weights_2, hidden1_outputs), network->bias_2));
+    Matrix* hidden3_outputs = apply(sigmoid, add(dot(network->weights_3, hidden2_outputs), network->bias_3));
+    Matrix* final_outputs = apply(sigmoid, add(dot(network->weights_output, hidden3_outputs), network->bias_output));
+
 }
 
-double relu_derivative(double x) {
-    return (x > 0) ? 1 : 0;
+//void batch_train_network(Neural_Network* network, Image** images, int size);
+
+double sigmoid(double input) {
+    return 1.0 / (1 + exp(-1 * input));
+}
+
+Matrix* sigmoidPrime(Matrix* m) {
+    Matrix* ones = matrix_create(m->rows, m->columns);
+    matrix_fill(ones, 1);
+    Matrix* subtracted = subtract(ones, m);
+    Matrix* multiplied = multiply(m, subtracted);
+    matrix_free(ones);
+    matrix_free(subtracted);
+    return multiplied;
 }
 
 Matrix* softmax(Matrix* matrix) {
