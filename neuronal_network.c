@@ -170,6 +170,12 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
     return result;
 }
 
+double cost_function(Matrix* calculated, int expected){
+    calculated->numbers[expected] -= 1;
+    apply(square, calculated);
+
+}
+
 //void train_network(Neural_Network* network, Matrix* input, Matrix* output);
 //void batch_train_network(Neural_Network* network, Image** images, int size);
 
@@ -178,6 +184,10 @@ double relu(double input) {
         return 0.0;
     }
     return input;
+}
+
+double relu_derivative(double x) {
+    return (x > 0) ? 1 : 0;
 }
 
 Matrix* softmax(Matrix* matrix) {
