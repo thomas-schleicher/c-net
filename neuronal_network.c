@@ -159,11 +159,10 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
 //void batch_train_network(Neural_Network* network, Image** images, int size);
 
 double relu(double input) {
-    if (input < 0){
+    if (input <= 0){
         return 0.0;
     }
     return input;
-    //TODO: relu formel
 }
 
 Matrix* softmax(Matrix* matrix) {
