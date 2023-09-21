@@ -246,7 +246,6 @@ Matrix* transpose(Matrix* matrix) {
 
 }
 
-//file operations
 void matrix_save(Matrix* matrix, char* file_string){
 
     // open the file in append mode
@@ -274,37 +273,39 @@ void matrix_save(Matrix* matrix, char* file_string){
 }
 
 Matrix* matrix_load(char* file_string){
+
     FILE *fptr = fopen(file_string, "r");
+
     if(!fptr){
         printf("Could not open \"%s\"", file_string);
         exit(1);
     }
+
     Matrix * m = load_next_matrix(fptr);
+
     fclose(fptr);
     return m;
-
 }
 
-Matrix * load_next_matrix(FILE *fptr){
+Matrix* load_next_matrix(FILE *save_file){
 
     char buffer[MAX_BYTES];
 
-    fgets(buffer, MAX_BYTES, fptr);
+    fgets(buffer, MAX_BYTES, save_file);
     int rows = (int)strtol(buffer, NULL, 10);
-    fgets(buffer, MAX_BYTES, fptr);
+    fgets(buffer, MAX_BYTES, save_file);
     int cols = (int)strtol(buffer, NULL, 10);
 
     Matrix *matrix = matrix_create(rows, cols);
 
     for(int i = 0; i < rows; i++){
         for(int j = 0; j < cols; j++){
-            fgets(buffer, MAX_BYTES, fptr);
+            fgets(buffer, MAX_BYTES, save_file);
             matrix->numbers[i][j] = strtod(buffer, NULL);
         }
     }
     return matrix;
 }
-
 
 Matrix* matrix_flatten(Matrix* matrix, int axis) {
     // Axis = 0 -> Column Vector, Axis = 1 -> Row Vector
@@ -328,8 +329,6 @@ Matrix* matrix_flatten(Matrix* matrix, int axis) {
     }
     return result_matrix;
 }
-
-
 
 int matrix_argmax(Matrix* matrix) {
     // Expects a Mx1 matrix
