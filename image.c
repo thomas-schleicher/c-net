@@ -12,6 +12,58 @@ void big_endian_to_c_uint(const char * bytes, void * target, int size) {
     }
 }
 
+void read_until_space_or_newline(char * buff, int maxCount, FILE * fptr){
+    int bufferOffset = 0;
+    char c = -1;
+    do{
+        c = (char)getc(fptr);
+        buff[bufferOffset++] = c;
+
+    }while(!feof(fptr) && c != 0 && c != ' ' && c !='\n');
+    buff[bufferOffset-1] = 0;
+}
+
+Image * load_pgm_image(char * image_file_string){
+    FILE * fptr = fopen(image_file_string, "r");
+    Image *image = malloc(sizeof(Image));
+    image->label = -1;
+
+
+    char buffer[100];
+    int magic_number = 0;
+    fgets(buffer, 4, fptr);
+    if(buffer[0] != 'P' || buffer[1] != '5'){
+        printf("Wrong file Format");
+        exit(1);
+    }
+    if(fgetc(fptr) ==  '#'){
+        fgets(buffer, 1024, fptr);
+    }
+
+    int image_width, image_height, image_length, image_white ;
+    read_until_space_or_newline(buffer, 10, fptr);
+    image_width = strtol(buffer, NULL, 10);
+
+    read_until_space_or_newline(buffer, 10, fptr);
+    image_height = strtol(buffer, NULL, 10);
+
+    read_until_space_or_newline(buffer, 10, fptr);
+    image_white = strtol(buffer, NULL, 10);
+
+    image_length = image_width * image_height;
+
+    image->pixel_values = matrix_create(image_height, image_width);
+    for(int i = 0; i < image_height; i++){
+        fread(buffer, 1, 28, fptr);
+        for(int j = 0; j < image_width;  j++){
+            image->pixel_values->numbers[i][j] = (image_white - (unsigned char)buffer[j]) / 255.0;
+        }
+    }
+
+    fclose(fptr);
+    return image;
+}
+
 
 Image** import_images(char* image_file_string, char* label_file_string, int* _number_imported, int count) {
     printf("Loading Images\n");

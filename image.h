@@ -26,6 +26,7 @@ static const int MAGIC_NUMBER_IMAGES = 2051;
  * @return
  */
 Image ** import_images(char* image_file_string, char* label_file_string, int* number_imported, int count);
+Image * load_pgm_image(char * image_file_string);
 void img_print (Image* image);
 void img_visualize(Image*image);
 void img_free (Image* image);
