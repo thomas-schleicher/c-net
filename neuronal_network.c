@@ -19,7 +19,7 @@ Neural_Network* new_network(int input_size, int hidden_size, int output_size, do
     network->bias_1 = matrix_create(hidden_size, 1);
     network->bias_2 = matrix_create(hidden_size, 1);
     network->bias_3 = matrix_create(hidden_size, 1);
-    //network.bias_output = matrix_create(output_size, 1); // do we need it?
+    network.bias_output = matrix_create(output_size, 1);
 
 
 
@@ -34,6 +34,7 @@ void randomize_network(Neural_Network* network, int scope){
     matrix_randomize(network->bias_1, scope);
     matrix_randomize(network->bias_2, scope);
     matrix_randomize(network->bias_3, scope);
+    matrix_randomize(network->bias_output, scope);
 }
 
 //void print_network(Neural_Network* network){};
@@ -46,6 +47,7 @@ void free_network(Neural_Network* network){
     matrix_free(network->bias_1);
     matrix_free(network->bias_2);
     matrix_free(network->bias_3);
+    matrix_free(network->bias_output);
     free(network);
 }
 
@@ -84,6 +86,7 @@ void save_network(Neural_Network* network) {
     matrix_save(network->weights_3, file_name);
 
     // save output weights
+    matrix_save(network->bias_output, file_name);
     matrix_save(network->weights_output, file_name);
 
     printf("Network Saved!");
@@ -119,6 +122,7 @@ Neural_Network* load_network(char* file) {
     saved_network->weights_2 = load_next_matrix(save_file);
     saved_network->bias_3 = load_next_matrix(save_file);
     saved_network->weights_3 = load_next_matrix(save_file);
+    saved_network->bias_output = load_next_matrix(save_file);
     saved_network->weights_output = load_next_matrix(save_file);
 
     // return saved network
@@ -152,7 +156,7 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
 
     Matrix* hidden3_outputs = apply(relu, add(dot(network->weights_3, hidden2_outputs), network->bias_3));
 
-    Matrix* final_outputs = apply(relu, dot(network->weights_output, hidden3_outputs));
+    Matrix* final_outputs = apply(relu, add(dot(network->weights_output, hidden3_outputs), network->bias_output));
 
     Matrix* result = softmax(final_outputs);
 

@@ -18,7 +18,7 @@ typedef struct {
 
     int output_size;
     Matrix* weights_output;
-    //Matrix* bias_output; // do we need it?
+    Matrix* bias_output;
     //Matrix* output; as local variable given to function
 
     double learning_rate;
