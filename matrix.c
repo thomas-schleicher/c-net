@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 #define MAX_BYTES 100
 
+static int RANDOMIZED = 0;
 // operational functions
 Matrix* matrix_create(int rows, int columns) {
 
@@ -17,7 +19,7 @@ Matrix* matrix_create(int rows, int columns) {
     // allocate memory for the numbers (2D-Array)
     matrix->numbers = malloc(sizeof(double*) * rows);
     for (int i = 0; i < rows; i++) {
-        matrix->numbers[i] = malloc(sizeof(double) * columns);
+        matrix->numbers[i] = calloc(sizeof(double), columns);
     }
 
     // return the pointer to the allocated memory
@@ -189,7 +191,8 @@ Matrix* apply(double (*function)(double), Matrix* matrix) {
     // apply the function to all values in the matrix
     for (int i = 0; i < matrix->rows; i++) {
         for (int j = 0; j < matrix->columns; j++) {
-            matrix->numbers[i][j] = (*function)(matrix->numbers[i][j]);
+            result_matrix->numbers[i][j] = (*function)(matrix->numbers[i][j]);
+            int k = 0;
         }
     }
 
@@ -246,7 +249,6 @@ Matrix* transpose(Matrix* matrix) {
 
 }
 
-//file operations
 void matrix_save(Matrix* matrix, char* file_string){
 
     // open the file in append mode
@@ -274,29 +276,39 @@ void matrix_save(Matrix* matrix, char* file_string){
 }
 
 Matrix* matrix_load(char* file_string){
+
     FILE *fptr = fopen(file_string, "r");
+
     if(!fptr){
         printf("Could not open \"%s\"", file_string);
         exit(1);
     }
+
+    Matrix * m = load_next_matrix(fptr);
+
+    fclose(fptr);
+    return m;
+}
+
+Matrix* load_next_matrix(FILE *save_file){
+
     char buffer[MAX_BYTES];
 
-    fgets(buffer, MAX_BYTES, fptr);
+    fgets(buffer, MAX_BYTES, save_file);
     int rows = (int)strtol(buffer, NULL, 10);
-    fgets(buffer, MAX_BYTES, fptr);
+    fgets(buffer, MAX_BYTES, save_file);
     int cols = (int)strtol(buffer, NULL, 10);
 
     Matrix *matrix = matrix_create(rows, cols);
 
     for(int i = 0; i < rows; i++){
         for(int j = 0; j < cols; j++){
-            fgets(buffer, MAX_BYTES, fptr);
+            fgets(buffer, MAX_BYTES, save_file);
             matrix->numbers[i][j] = strtod(buffer, NULL);
         }
     }
     return matrix;
 }
-
 
 Matrix* matrix_flatten(Matrix* matrix, int axis) {
     // Axis = 0 -> Column Vector, Axis = 1 -> Row Vector
@@ -340,6 +352,10 @@ int matrix_argmax(Matrix* matrix) {
 
 void matrix_randomize(Matrix* matrix, int n) {
 
+    if(!RANDOMIZED){
+        srand(time(NULL));
+        RANDOMIZED = 1;
+    }
     //make a min and max
     double min = -1.0f / sqrt(n);
     double max = 1.0f / sqrt(n);

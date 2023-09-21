@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 
 typedef struct {
     int rows, columns;
@@ -15,6 +16,7 @@ void matrix_print(Matrix *matrix);
 Matrix* matrix_copy(Matrix *matrix);
 void matrix_save(Matrix* matrix, char* file_string);
 Matrix* matrix_load(char* file_string);
+Matrix* load_next_matrix(FILE * save_file);
 
 void matrix_randomize(Matrix* matrix, int n); // don't understand the usage of the n
 int matrix_argmax(Matrix* matrix);
