@@ -12,7 +12,7 @@ double square(double input);
 
 double loss_function(Matrix* output_matrix, int image_label);
 
-void backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old);
+Matrix* backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old);
 
 Neural_Network* new_network(int input_size, int hidden_size, int output_size, double learning_rate){
     Neural_Network *network = malloc(sizeof(Neural_Network));
@@ -226,20 +226,20 @@ void train_network(Neural_Network* network, Image *image, int label) {
     Matrix* final_outputs = apply(sigmoid, final_add);
 
     // begin backpropagation
-    Matrix* sigma = matrix_create(final_outputs->rows, 1);
-    matrix_fill(sigma, 1);
-    Matrix* temp1 = subtract(sigma, final_outputs);
+    Matrix* sigma1 = matrix_create(final_outputs->rows, 1);
+    matrix_fill(sigma1, 1);
+    Matrix* temp1 = subtract(sigma1, final_outputs);
     Matrix* temp2 = multiply(temp1, final_outputs); // * soll-ist
     Matrix* temp3 = matrix_create(final_outputs->rows, final_outputs->columns);
     matrix_fill(temp3, 0);
     temp3->numbers[label][0] = 1;
     Matrix* temp4 = subtract(temp3, final_outputs);
-    sigma = multiply(temp2, temp4);
+    sigma1 = multiply(temp2, temp4);
 
     Matrix* temp5 = transpose(h3_outputs);
-    Matrix* temp6 = dot(sigma, temp5);
+    Matrix* temp6 = dot(sigma1, temp5);
     Matrix* weights_delta = scale(temp6, network->learning_rate);
-    Matrix* bias_delta = scale(sigma, network->learning_rate);
+    Matrix* bias_delta = scale(sigma1, network->learning_rate);
 
     Matrix* temp7 = add(weights_delta, network->weights_output);
     matrix_free(network->weights_output);
@@ -250,9 +250,9 @@ void train_network(Neural_Network* network, Image *image, int label) {
     network->bias_output = temp8;
 
     // other levels
-    backPropagation(network->learning_rate, network->weights_3, network->bias_3, h3_outputs, h2_outputs, sigma);
-    backPropagation(network->learning_rate, network->weights_2, network->bias_2, h2_outputs, h1_outputs, sigma);
-    backPropagation(network->learning_rate, network->weights_1, network->bias_1, h1_outputs, input, sigma);
+    Matrix* sigma2 = backPropagation(network->learning_rate, network->weights_3, network->bias_3, h3_outputs, h2_outputs, sigma1);
+    Matrix* sigma3 = backPropagation(network->learning_rate, network->weights_2, network->bias_2, h2_outputs, h1_outputs, sigma2);
+    Matrix* sigma4 = backPropagation(network->learning_rate, network->weights_1, network->bias_1, h1_outputs, input, sigma3);
 
     matrix_free(input);
 
@@ -275,7 +275,11 @@ void train_network(Neural_Network* network, Image *image, int label) {
     matrix_free(weights_delta);
     matrix_free(bias_delta);
 
-    matrix_free(sigma);
+    matrix_free(sigma1);
+    matrix_free(sigma2);
+    matrix_free(sigma3);
+    matrix_free(sigma4);
+
     matrix_free(temp1);
     matrix_free(temp2);
     matrix_free(temp3);
@@ -286,7 +290,7 @@ void train_network(Neural_Network* network, Image *image, int label) {
     matrix_free(temp8);
 }
 
-void backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old) {
+Matrix* backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old) {
     Matrix* sigma_new = matrix_create(current_layer_activation->rows, 1);
     matrix_fill(sigma_new, 1);
 
@@ -318,7 +322,6 @@ void backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matr
     biases = temp6;
 
     matrix_free(sigma_old);
-    sigma_old = sigma_new;
 
     matrix_free(temp1);
     matrix_free(temp2);
@@ -328,6 +331,8 @@ void backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matr
     matrix_free(temp6);
     matrix_free(weights_delta);
     matrix_free(bias_delta);
+
+    return sigma_new;
 }
 
 
