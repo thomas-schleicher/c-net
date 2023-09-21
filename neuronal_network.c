@@ -284,24 +284,28 @@ void backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matr
 
     // new sigma done
 
-    temp1 = transpose(previous_layer_activation);
-    temp2 = dot(sigma_new, temp1);
-    Matrix* weights_delta = scale(temp2, learning_rate);
+    Matrix* temp3 = transpose(previous_layer_activation);
+    Matrix* temp4 = dot(sigma_new, temp3);
+    Matrix* weights_delta = scale(temp4, learning_rate);
     Matrix* bias_delta = scale(sigma_new, learning_rate);
 
-    temp1 = add(weights_delta, weights);
+    Matrix* temp5 = add(weights_delta, weights);
     matrix_free(weights);
-    weights = temp1;
+    weights = temp5;
 
-    temp1 = add(bias_delta, biases);
+    Matrix* temp6 = add(bias_delta, biases);
     matrix_free(biases);
-    biases = temp1;
+    biases = temp6;
 
+    matrix_free(sigma_old);
     sigma_old = sigma_new;
 
-    matrix_free(sigma_new);
     matrix_free(temp1);
     matrix_free(temp2);
+    matrix_free(temp3);
+    matrix_free(temp4);
+    matrix_free(temp5);
+    matrix_free(temp6);
     matrix_free(weights_delta);
     matrix_free(bias_delta);
 }
