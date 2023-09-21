@@ -29,6 +29,7 @@ static const int MAX_BYTES = 100;
 
 Neural_Network* new_network(int input_size, int hidden_size, int output_size, double learning_rate);
 //void print_network(Neural_Network* network);
+void randomize_network(Neural_Network* network, int scope);
 void free_network(Neural_Network* network);
 
 void save_network(Neural_Network* network);

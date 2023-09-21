@@ -21,7 +21,19 @@ Neural_Network* new_network(int input_size, int hidden_size, int output_size, do
     network->bias_3 = matrix_create(hidden_size, 1);
     //network.bias_output = matrix_create(output_size, 1); // do we need it?
 
+
+
     return network;
+}
+
+void randomize_network(Neural_Network* network, int scope){
+    matrix_randomize(network->weights_1, scope);
+    matrix_randomize(network->weights_2, scope);
+    matrix_randomize(network->weights_3, scope);
+    matrix_randomize(network->weights_output, scope);
+    matrix_randomize(network->bias_1, scope);
+    matrix_randomize(network->bias_2, scope);
+    matrix_randomize(network->bias_3, scope);
 }
 
 //void print_network(Neural_Network* network){};
