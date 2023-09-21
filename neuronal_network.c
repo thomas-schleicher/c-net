@@ -122,6 +122,7 @@ Neural_Network* load_network(char* file) {
     saved_network->weights_2 = load_next_matrix(save_file);
     saved_network->bias_3 = load_next_matrix(save_file);
     saved_network->weights_3 = load_next_matrix(save_file);
+    saved_network->bias_output = load_next_matrix(save_file);
     saved_network->weights_output = load_next_matrix(save_file);
 
     // return saved network
