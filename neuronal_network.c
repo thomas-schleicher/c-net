@@ -2,6 +2,7 @@
 #include "neuronal_network.h"
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 
 Neural_Network* new_network(int input_size, int hidden_size, int output_size, double learning_rate){
     Neural_Network *network = malloc(sizeof(Neural_Network));
@@ -104,38 +105,65 @@ Neural_Network* load_network(char* file) {
     return saved_network;
 }
 
-//double predict_images(Neural_Network* network, Image** images, int amount) {
-//    int num_correct = 0;
-//    for (int i = 0; i < amount; i++) {
-//        Matrix* prediction = predict_image(network, images[i]);
-//        if (matrix_argmax(prediction) == images[i]->label) {
-//            num_correct++;
-//        }
-//        matrix_free(prediction);
-//    }
-//    return 1.0 * num_correct / amount;
-//}
+double predict_images(Neural_Network* network, Image** images, int amount) {
+    int num_correct = 0;
+    for (int i = 0; i < amount; i++) {
+        Matrix* prediction = predict_image(network, images[i]);
+        if (matrix_argmax(prediction) == images[i]->label) {
+            num_correct++;
+        }
+        matrix_free(prediction);
+    }
+    return 1.0 * num_correct / amount;
+}
 
-//Matrix* predict_image(Neural_Network* network, Image*);
+Matrix* predict_image(Neural_Network* network, Image* image){
+    Matrix* image_data = matrix_flatten(image->pixel_values, 0);
+    Matrix* res = predict(network, image_data);
+    matrix_free(image_data);
+    return res;
+}
 
-//Matrix* predict(Neural_Network* network, Matrix* image_data) {
-//    Matrix* hidden1_outputs = apply(relu, add(dot(network->weights_1, image_data), network->bias_1));
-//
-//    Matrix* hidden2_outputs = apply(relu, add(dot(network->weights_2, hidden1_outputs), network->bias_2));
-//
-//    Matrix* hidden3_outputs = apply(relu, add(dot(network->weights_3, hidden2_outputs), network->bias_3));
-//
-//    Matrix* final_outputs = apply(relu, dot(network->weights_output, hidden3_outputs));
-//
-//    Matrix* result = softmax(final_outputs);
-//
-//    matrix_free(hidden1_outputs);
-//    matrix_free(hidden2_outputs);
-//    matrix_free(hidden3_outputs);
-//    matrix_free(final_outputs);
-//
-//    return result;
-//}
+Matrix* predict(Neural_Network* network, Matrix* image_data) {
+    Matrix* hidden1_outputs = apply(relu, add(dot(network->weights_1, image_data), network->bias_1));
+
+    Matrix* hidden2_outputs = apply(relu, add(dot(network->weights_2, hidden1_outputs), network->bias_2));
+
+    Matrix* hidden3_outputs = apply(relu, add(dot(network->weights_3, hidden2_outputs), network->bias_3));
+
+    Matrix* final_outputs = apply(relu, dot(network->weights_output, hidden3_outputs));
+
+    Matrix* result = softmax(final_outputs);
+
+    matrix_free(hidden1_outputs);
+    matrix_free(hidden2_outputs);
+    matrix_free(hidden3_outputs);
+    matrix_free(final_outputs);
+
+    return result;
+}
 
 //void train_network(Neural_Network* network, Matrix* input, Matrix* output);
 //void batch_train_network(Neural_Network* network, Image** images, int size);
+
+double relu(double input) {
+    return 1.0;
+    //TODO: relu formel
+}
+
+Matrix* softmax(Matrix* matrix) {
+    double total = 0;
+
+    for (int i = 0; i < matrix->rows; i++) {
+        for (int j = 0; j < matrix->columns; j++) {
+            total += exp(matrix->numbers[i][j]);
+        }
+    }
+    Matrix* result_matrix = matrix_create(matrix->rows, matrix->columns);
+    for (int i = 0; i < result_matrix->rows; i++) {
+        for (int j = 0; j < result_matrix->columns; j++) {
+            result_matrix->numbers[i][j] = exp(matrix->numbers[i][j]) / total;
+        }
+    }
+    return result_matrix;
+}

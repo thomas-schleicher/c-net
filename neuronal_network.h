@@ -35,8 +35,11 @@ void save_network(Neural_Network* network);
 Neural_Network* load_network(char* file);
 
 double predict_images(Neural_Network* network, Image** images, int amount);
-Matrix* predict_image(Neural_Network* network, Image*);
+Matrix* predict_image(Neural_Network* network, Image* image);
 Matrix* predict(Neural_Network* network, Matrix* image_data);
 
 void train_network(Neural_Network* network, Matrix* input, Matrix* output);
 void batch_train_network(Neural_Network* network, Image** images, int size);
+
+double relu(double input);
+Matrix* softmax(Matrix* matrix);
