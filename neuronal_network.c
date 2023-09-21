@@ -19,7 +19,7 @@ Neural_Network* new_network(int input_size, int hidden_size, int output_size, do
     network->bias_1 = matrix_create(hidden_size, 1);
     network->bias_2 = matrix_create(hidden_size, 1);
     network->bias_3 = matrix_create(hidden_size, 1);
-    //network.bias_output = matrix_create(output_size, 1); // do we need it?
+    network.bias_output = matrix_create(output_size, 1);
 
 
 
@@ -34,6 +34,7 @@ void randomize_network(Neural_Network* network, int scope){
     matrix_randomize(network->bias_1, scope);
     matrix_randomize(network->bias_2, scope);
     matrix_randomize(network->bias_3, scope);
+    matrix_randomize(network->bias_output, scope);
 }
 
 //void print_network(Neural_Network* network){};
@@ -46,6 +47,7 @@ void free_network(Neural_Network* network){
     matrix_free(network->bias_1);
     matrix_free(network->bias_2);
     matrix_free(network->bias_3);
+    matrix_free(network->bias_output);
     free(network);
 }
 
@@ -84,6 +86,7 @@ void save_network(Neural_Network* network) {
     matrix_save(network->weights_3, file_name);
 
     // save output weights
+    matrix_save(network->bias_output, file_name);
     matrix_save(network->weights_output, file_name);
 
     printf("Network Saved!");
