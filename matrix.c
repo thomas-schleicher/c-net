@@ -279,6 +279,14 @@ Matrix* matrix_load(char* file_string){
         printf("Could not open \"%s\"", file_string);
         exit(1);
     }
+    Matrix * m = load_next_matrix(fptr);
+    fclose(fptr);
+    return m;
+
+}
+
+Matrix * load_next_matrix(FILE *fptr){
+
     char buffer[MAX_BYTES];
 
     fgets(buffer, MAX_BYTES, fptr);
@@ -320,6 +328,8 @@ Matrix* matrix_flatten(Matrix* matrix, int axis) {
     }
     return result_matrix;
 }
+
+
 
 int matrix_argmax(Matrix* matrix) {
     // Expects a Mx1 matrix
