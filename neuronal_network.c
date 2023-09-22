@@ -45,8 +45,6 @@ void randomize_network(Neural_Network* network, int scope){
     matrix_randomize(network->bias_output, scope);
 }
 
-//void print_network(Neural_Network* network){};
-
 void free_network(Neural_Network* network){
     matrix_free(network->weights_1);
     matrix_free(network->weights_2);
@@ -226,15 +224,15 @@ void train_network(Neural_Network* network, Image *image, int label) {
     Matrix* final_outputs = apply(sigmoid, final_add);
 
     // begin backpropagation
-    Matrix* sigma1 = matrix_create(final_outputs->rows, 1);
-    matrix_fill(sigma1, 1);
-    Matrix* temp1 = subtract(sigma1, final_outputs);
+    Matrix* temp9 = matrix_create(final_outputs->rows, 1);
+    matrix_fill(temp9, 1);
+    Matrix* temp1 = subtract(temp9, final_outputs);
     Matrix* temp2 = multiply(temp1, final_outputs); // * soll-ist
     Matrix* temp3 = matrix_create(final_outputs->rows, final_outputs->columns);
     matrix_fill(temp3, 0);
     temp3->numbers[label][0] = 1;
     Matrix* temp4 = subtract(temp3, final_outputs);
-    sigma1 = multiply(temp2, temp4);
+    Matrix* sigma1 = multiply(temp2, temp4);
 
     Matrix* temp5 = transpose(h3_outputs);
     Matrix* temp6 = dot(sigma1, temp5);
@@ -303,13 +301,14 @@ void train_network(Neural_Network* network, Image *image, int label) {
     matrix_free(temp6);
     matrix_free(temp7);
     matrix_free(temp8);
+    matrix_free(temp9);
 }
 
 Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old) {
-    Matrix* sigma_new = matrix_create(current_layer_activation->rows, 1);
-    matrix_fill(sigma_new, 1);
+    Matrix* temp7 = matrix_create(current_layer_activation->rows, 1);
+    matrix_fill(temp7, 1);
 
-    Matrix* temp1 = subtract(sigma_new, current_layer_activation);
+    Matrix* temp1 = subtract(temp7, current_layer_activation);
     Matrix* temp2 = multiply(temp1, current_layer_activation); // *sum(delta*weights)
 
     for(int i = 0; i < current_layer_activation->rows; i++) {
@@ -319,7 +318,7 @@ Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, 
         }
         temp1->numbers[i][0] = sum;
     }
-    sigma_new = multiply(temp2, temp1);
+    Matrix* sigma_new = multiply(temp2, temp1);
 
     // new sigma done
 
@@ -348,14 +347,12 @@ Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, 
     matrix_free(temp4);
     matrix_free(temp5);
     matrix_free(temp6);
+    matrix_free(temp7);
     matrix_free(weights_delta);
     matrix_free(bias_delta);
 
     return sigma_new;
 }
-
-
-//void batch_train_network(Neural_Network* network, Image** images, int size);
 
 double sigmoid(double input) {
     return 1.0 / (1 + exp(-1 * input));
