@@ -372,13 +372,13 @@ double square(double input) {
     return input * input;
 }
 
-double loss_function(Matrix* output_matrix, int image_label) {
-    Matrix* temp = matrix_copy(output_matrix);
-
-    temp->numbers[1, image_label] -= 1;
-    apply(square, temp);
-
-    matrix_free(temp);
-
-    return matrix_sum(temp);;
-}
+//double loss_function(Matrix* output_matrix, int image_label) {
+//    Matrix* temp = matrix_copy(output_matrix);
+//
+//    temp->numbers[1][image_label] -= 1;
+//    apply(square, temp);
+//
+//    matrix_free(temp);
+//
+//    return matrix_sum(temp);;
+//}
