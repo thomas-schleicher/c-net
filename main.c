@@ -8,7 +8,7 @@ int main() {
     Image** images = import_images("../data/train-images.idx3-ubyte", "../data/train-labels.idx1-ubyte", NULL, 60000);
 //    img_visualize(images[4]);
 
-    Neural_Network* nn = new_network(28*28, 8, 10, 0.25);
+    Neural_Network* nn = new_network(28*28, 100, 10, 0.5);
     randomize_network(nn, 20);
 //    save_network(nn);
 
