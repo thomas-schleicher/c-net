@@ -349,8 +349,10 @@ int matrix_argmax(Matrix* matrix) {
         printf("ERROR: Matrix is not Mx1 (matrix_argmax)");
         exit(EXIT_FAILURE);
     }
+
     double max_value = 0;
     int max_index = 0;
+
     for (int i = 0; i < matrix->rows; i++) {
         if (matrix->numbers[i][0] > max_value) {
             max_value = matrix->numbers[i][0];
