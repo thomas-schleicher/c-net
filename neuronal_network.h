@@ -26,6 +26,7 @@ Neural_Network* load_network(char* file);
 
 void print_network(Neural_Network* network);
 
+void batch_train(Neural_Network* network, Image** images, int amount, int batch_size);
 double measure_network_accuracy(Neural_Network* network, Image** images, int amount);
 Matrix* predict_image(Neural_Network* network, Image* image);
 

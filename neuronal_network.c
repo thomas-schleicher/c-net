@@ -7,7 +7,7 @@ double sigmoid(double input);
 Matrix* predict(Neural_Network* network, Matrix* image_data);
 double square(double input);
 Matrix* sigmoid_derivative(Matrix* matrix);
-Matrix* calculate_weights_delta(Matrix* previous_layer_output, Matrix* delta_matrix);
+Matrix *calculate_weights_delta(Matrix *previous_layer_output, Matrix *delta_matrix, double learning_rate);
 void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int index);
 Matrix* calculate_delta_hidden(Matrix* next_layer_delta, Matrix* weights, Matrix* current_layer_output);
 
@@ -230,13 +230,13 @@ Matrix ** train_network(Neural_Network* network, Image *image, int label) {
     Matrix* delta = multiply(sigmoid_prime, error);
 
     //calculate and apply the delta for all weights in out-put layer
-    delta_weights[network->hidden_amount] = calculate_weights_delta(output[network->hidden_amount - 1], delta);
+    delta_weights[network->hidden_amount] = calculate_weights_delta(output[network->hidden_amount - 1], delta, network->learning_rate);
 
     //hidden layers
     Matrix* previous_delta = delta;
     for (int i = network->hidden_amount; i > 1; i--) {
         delta = calculate_delta_hidden(previous_delta, network->weights[i], output[i - 1]);
-        delta_weights[i - 1] = calculate_weights_delta(output[i - 2], delta);
+        delta_weights[i - 1] = calculate_weights_delta(output[i - 2], delta, network->learning_rate);
 
         matrix_free(previous_delta);
         previous_delta = delta;
@@ -244,7 +244,7 @@ Matrix ** train_network(Neural_Network* network, Image *image, int label) {
 
     // Input Layer
     delta = calculate_delta_hidden(previous_delta, network->weights[1], output[0]);
-    delta_weights[0] = calculate_weights_delta(image_data, delta);
+    delta_weights[0] = calculate_weights_delta(image_data, delta, network->learning_rate);
 
     for (int i = 0; i < network->hidden_amount + 1; ++i) {
         apply_weights(network, delta_weights[i], i);
@@ -258,9 +258,9 @@ Matrix ** train_network(Neural_Network* network, Image *image, int label) {
         matrix_free(output[i]);
     }
 
-    for (int i = 0; i < network->hidden_amount + 1; ++i) {
-        matrix_free(delta_weights[i]);
-    }
+//    for (int i = 0; i < network->hidden_amount + 1; ++i) {
+//        matrix_free(delta_weights[i]);
+//    }
 
     matrix_free(sigmoid_prime);
     matrix_free(wanted_output);
@@ -318,16 +318,20 @@ void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int in
     }
 }
 
-Matrix* calculate_weights_delta(Matrix* previous_layer_output, Matrix* delta_matrix) {
+Matrix *calculate_weights_delta(Matrix *previous_layer_output, Matrix *delta_matrix, double learning_rate) {
 
     Matrix* previous_out_with_one = matrix_add_bias(previous_layer_output);
     Matrix* transposed_previous_out_with_bias = transpose(previous_out_with_one);
     Matrix* weights_delta_matrix = dot(delta_matrix, transposed_previous_out_with_bias);
 
+    // scale by learning rate
+    Matrix* result = scale(weights_delta_matrix, learning_rate);
+
     matrix_free(previous_out_with_one);
     matrix_free(transposed_previous_out_with_bias);
+    matrix_free(weights_delta_matrix);
 
-    return weights_delta_matrix;
+    return result;
 }
 
 Matrix* sigmoid_derivative(Matrix* matrix) {
