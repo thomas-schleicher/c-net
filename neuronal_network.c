@@ -33,10 +33,15 @@ void randomize_network(Neural_Network* network, int scope){
     matrix_randomize(network->weights_2, scope);
     matrix_randomize(network->weights_3, scope);
     matrix_randomize(network->weights_output, scope);
-    matrix_randomize(network->bias_1, scope);
-    matrix_randomize(network->bias_2, scope);
-    matrix_randomize(network->bias_3, scope);
-    matrix_randomize(network->bias_output, scope);
+//    matrix_randomize(network->bias_1, scope);
+//    matrix_randomize(network->bias_2, scope);
+//    matrix_randomize(network->bias_3, scope);
+//    matrix_randomize(network->bias_output, scope);
+
+    matrix_fill(network->bias_1, 1);
+    matrix_fill(network->bias_2, 1);
+    matrix_fill(network->bias_3, 1);
+    matrix_fill(network->bias_output, 1);
 }
 
 void free_network(Neural_Network* network){

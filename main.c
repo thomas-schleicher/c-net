@@ -5,9 +5,9 @@
 
 int main() {
     Image** images = import_images("../data/train-images.idx3-ubyte", "../data/train-labels.idx1-ubyte", NULL, 60000);
-//    img_visualize(images[4]);
+//    img_visualize(images[0]);
 
-    Neural_Network* nn = new_network(28*28, 50, 10, 0.1);
+    Neural_Network* nn = new_network(28*28, 50, 10, 0.01);
     randomize_network(nn, 1);
 //    save_network(nn);
 
@@ -16,6 +16,7 @@ int main() {
 
     for (int i = 0; i < 20000; ++i) {
         train_network(nn, images[i], images[i]->label);
+//        matrix_print(nn->weights_output);
     }
 
 //    train_network(nn, images[0], images[0]->label);
