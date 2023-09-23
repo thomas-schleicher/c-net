@@ -160,7 +160,43 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
     return output[network->hidden_amount];
 }
 
-void train_network(Neural_Network* network, Image *image, int label) {
+void batch_train(Neural_Network* network, Image** images, int amount, int batch_size) {
+
+    for (int i = 0; i < amount; ++i) {
+
+        Matrix* batch_weights[network->hidden_amount + 1];
+
+        for (int j = 0; j < batch_size; ++j) {
+            Matrix** delta_weights = train_network(network, images[i], images[i]->label);
+
+            for (int k = 0; k < network->hidden_amount + 1; k++) {
+                if(j == 0) {
+                    batch_weights[k] = delta_weights[k];
+                    continue;
+                }
+
+                Matrix* temp_result = add(batch_weights[k], delta_weights[k]);
+
+                matrix_free(batch_weights[k]);
+                matrix_free(delta_weights[k]);
+
+                batch_weights[k] = temp_result;
+            }
+
+            free(delta_weights);
+        }
+
+        for (int j = 0; j < network->hidden_amount + 1; ++j) {
+            Matrix* average_delta_weight = scale(batch_weights[j], (1.0 / batch_size));
+            apply_weights(network, average_delta_weight, j);
+
+            matrix_free(average_delta_weight);
+            matrix_free(batch_weights[j]);
+        }
+    }
+}
+
+Matrix ** train_network(Neural_Network* network, Image *image, int label) {
 
     Matrix* image_data = matrix_flatten(image->pixel_values, 0);
     Matrix* input = matrix_add_bias(image_data);
@@ -181,7 +217,7 @@ void train_network(Neural_Network* network, Image *image, int label) {
     // back propagation
 
     //list to store the new weights
-    Matrix* delta_weights[network->hidden_amount + 1];
+    Matrix** delta_weights = malloc(sizeof(Matrix*) * (network->hidden_amount + 1));
 
     // calculate the derivative of the sigmoid function of the input of the result layer
     Matrix* sigmoid_prime = sigmoid_derivative(output[network->hidden_amount]);
@@ -232,6 +268,7 @@ void train_network(Neural_Network* network, Image *image, int label) {
     matrix_free(delta);
     matrix_free(previous_delta);
 
+    return delta_weights;
 }
 
 Matrix* calculate_delta_hidden(Matrix* next_layer_delta, Matrix* weights, Matrix* current_layer_output) {

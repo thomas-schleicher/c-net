@@ -29,4 +29,4 @@ void print_network(Neural_Network* network);
 double measure_network_accuracy(Neural_Network* network, Image** images, int amount);
 Matrix* predict_image(Neural_Network* network, Image* image);
 
-void train_network(Neural_Network* network, Image *image, int label);
+Matrix ** train_network(Neural_Network* network, Image *image, int label);
