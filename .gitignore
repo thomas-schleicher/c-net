@@ -1,0 +1,60 @@
+CLion Tings
+cmake-build-debug
+.idea/workspace.xml
+
+Prerequisites
+*.d
+
+Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+Linker output
+*.ilk
+*.map
+*.exp
+
+Precompiled Headers
+*.gch
+*.pch
+
+Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+.so.
+*.dylib
+
+Executables
+*.exe
+*.out
+*.app
+.i86
+*.x86_64
+*.hex
+
+Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+Kernel Module Compile Results
+.mod
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+/.idea/.name
+/.idea/misc.xml
+/.idea/shelf/Uncommitted_changes_before_Update_at_21_09_23,_09_38_[Changes]/shelved.patch
+/.idea/shelf/Uncommitted_changes_before_Update_at_21_09_23,_09_38_[Changes]/shelved.patch
