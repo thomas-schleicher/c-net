@@ -8,22 +8,22 @@ Matrix* predict(Neural_Network* network, Matrix* image_data);
 double square(double input);
 Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old);
 
-Neural_Network* new_network(int input_size, int hidden_size, int output_size, double learning_rate){
-    Neural_Network *network = malloc(sizeof(Neural_Network));
+Neural_Network* new_network(int input_size, int hidden_size, int hidden_amount, int output_size, double learning_rate){
+    Neural_Network* network = malloc(sizeof(Neural_Network));
     // initialize networks variables
     network->hidden_size = hidden_size;
     network->input_size = input_size;
     network->output_size = output_size;
     network->learning_rate = learning_rate;
 
-    network->weights_1 = matrix_create(hidden_size, input_size);
-    network->weights_2 = matrix_create(hidden_size, hidden_size);
-    network->weights_3 = matrix_create(hidden_size, hidden_size);
-    network->weights_output = matrix_create(output_size, hidden_size);
-    network->bias_1 = matrix_create(hidden_size, 1);
-    network->bias_2 = matrix_create(hidden_size, 1);
-    network->bias_3 = matrix_create(hidden_size, 1);
-    network->bias_output = matrix_create(output_size, 1);
+    Matrix** weights = malloc(sizeof(Matrix)*(hidden_amount + 1));
+    network->weights = weights;
+
+    network->weights[0] = matrix_create(hidden_size, input_size+1);
+    for(int i=1;i<hidden_amount;i++){
+        network->weights[i] = matrix_create(hidden_size, hidden_size+1);
+    }
+    network->weights[hidden_amount] = matrix_create(output_size, hidden_size);
 
     return network;
 }
