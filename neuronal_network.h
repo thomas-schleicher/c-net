@@ -30,4 +30,4 @@ void batch_train(Neural_Network* network, Image** images, int amount, int batch_
 double measure_network_accuracy(Neural_Network* network, Image** images, int amount);
 Matrix* predict_image(Neural_Network* network, Image* image);
 
-Matrix ** train_network(Neural_Network* network, Image *image, int label);
+void train_network(Neural_Network* network, Image *image, int label);

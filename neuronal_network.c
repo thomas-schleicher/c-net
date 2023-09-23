@@ -117,11 +117,20 @@ void print_network(Neural_Network* network) {
 
 double measure_network_accuracy(Neural_Network* network, Image** images, int amount) {
     int num_correct = 0;
+
     for (int i = 0; i < amount; i++) {
         Matrix* prediction = predict_image(network, images[i]);
-        if (matrix_argmax(prediction) == images[i]->label) {
+
+        matrix_print(prediction);
+        printf("Label: %c\n", images[i]->label);
+
+        int guess = matrix_argmax(prediction);
+        int answer = (unsigned char) images[i]->label;
+
+        if (guess == answer) {
             num_correct++;
         }
+
         matrix_free(prediction);
     }
     return ((double) num_correct) / amount;
@@ -160,43 +169,47 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
     return output[network->hidden_amount];
 }
 
-void batch_train(Neural_Network* network, Image** images, int amount, int batch_size) {
+//void batch_train(Neural_Network* network, Image** images, int amount, int batch_size) {
+//
+//    for (int i = 0; i < amount; ++i) {
+//
+//        if(amount % 1000 == 0) {
+//            printf("1k pics!\n");
+//        }
+//
+//        Matrix* batch_weights[network->hidden_amount + 1];
+//
+//        for (int j = 0; j < batch_size; ++j) {
+//            Matrix** delta_weights = train_network(network, images[i], images[i]->label);
+//
+//            for (int k = 0; k < network->hidden_amount + 1; k++) {
+//                if(j == 0) {
+//                    batch_weights[k] = delta_weights[k];
+//                    continue;
+//                }
+//
+//                Matrix* temp_result = add(batch_weights[k], delta_weights[k]);
+//
+//                matrix_free(batch_weights[k]);
+//                matrix_free(delta_weights[k]);
+//
+//                batch_weights[k] = temp_result;
+//            }
+//
+//            free(delta_weights);
+//        }
+//
+//        for (int j = 0; j < network->hidden_amount + 1; ++j) {
+//            Matrix* average_delta_weight = scale(batch_weights[j], (1.0 / batch_size));
+//            apply_weights(network, average_delta_weight, j);
+//
+//            matrix_free(average_delta_weight);
+//            matrix_free(batch_weights[j]);
+//        }
+//    }
+//}
 
-    for (int i = 0; i < amount; ++i) {
-
-        Matrix* batch_weights[network->hidden_amount + 1];
-
-        for (int j = 0; j < batch_size; ++j) {
-            Matrix** delta_weights = train_network(network, images[i], images[i]->label);
-
-            for (int k = 0; k < network->hidden_amount + 1; k++) {
-                if(j == 0) {
-                    batch_weights[k] = delta_weights[k];
-                    continue;
-                }
-
-                Matrix* temp_result = add(batch_weights[k], delta_weights[k]);
-
-                matrix_free(batch_weights[k]);
-                matrix_free(delta_weights[k]);
-
-                batch_weights[k] = temp_result;
-            }
-
-            free(delta_weights);
-        }
-
-        for (int j = 0; j < network->hidden_amount + 1; ++j) {
-            Matrix* average_delta_weight = scale(batch_weights[j], (1.0 / batch_size));
-            apply_weights(network, average_delta_weight, j);
-
-            matrix_free(average_delta_weight);
-            matrix_free(batch_weights[j]);
-        }
-    }
-}
-
-Matrix ** train_network(Neural_Network* network, Image *image, int label) {
+void train_network(Neural_Network* network, Image *image, int label) {
 
     Matrix* image_data = matrix_flatten(image->pixel_values, 0);
     Matrix* input = matrix_add_bias(image_data);
@@ -258,9 +271,9 @@ Matrix ** train_network(Neural_Network* network, Image *image, int label) {
         matrix_free(output[i]);
     }
 
-//    for (int i = 0; i < network->hidden_amount + 1; ++i) {
-//        matrix_free(delta_weights[i]);
-//    }
+    for (int i = 0; i < network->hidden_amount + 1; ++i) {
+        matrix_free(delta_weights[i]);
+    }
 
     matrix_free(sigmoid_prime);
     matrix_free(wanted_output);
@@ -268,7 +281,7 @@ Matrix ** train_network(Neural_Network* network, Image *image, int label) {
     matrix_free(delta);
     matrix_free(previous_delta);
 
-    return delta_weights;
+//    return delta_weights;
 }
 
 Matrix* calculate_delta_hidden(Matrix* next_layer_delta, Matrix* weights, Matrix* current_layer_output) {

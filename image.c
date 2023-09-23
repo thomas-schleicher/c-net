@@ -90,7 +90,6 @@ Image** import_images(char* image_file_string, char* label_file_string, int* _nu
     fread(word_buffer, 4, 1, label_file);
     big_endian_to_c_uint(word_buffer, &label_count, buffer_size);
 
-
     //Read description of file
     fread(word_buffer, 4, 1, image_file);
     big_endian_to_c_uint(word_buffer, &magic_number_images, buffer_size);
