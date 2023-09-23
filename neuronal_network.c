@@ -6,7 +6,10 @@
 double sigmoid(double input);
 Matrix* predict(Neural_Network* network, Matrix* image_data);
 double square(double input);
-Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old);
+Matrix* sigmoid_derivative(Matrix* matrix);
+Matrix* calculate_weights_delta(Matrix* previous_layer_output, Matrix* delta_matrix);
+void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int index);
+Matrix* calculate_delta_hidden(Matrix* next_layer_delta, Matrix* weights, Matrix* current_layer_output);
 
 Neural_Network* new_network(int input_size, int hidden_size, int hidden_amount, int output_size, double learning_rate){
     Neural_Network* network = malloc(sizeof(Neural_Network));
@@ -154,7 +157,7 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
 
     matrix_free(input);
 
-    return output[network->hidden_amount + 1];
+    return output[network->hidden_amount];
 }
 
 void train_network(Neural_Network* network, Image *image, int label) {
@@ -175,28 +178,41 @@ void train_network(Neural_Network* network, Image *image, int label) {
         input = matrix_add_bias(neuron_activation);
     }
 
-    // calculate the derivative of the sigmoid function of the input of the result layer
-    Matrix* ones = matrix_create(output[network->hidden_amount]->rows, output[network->hidden_amount]->columns);
-    matrix_fill(ones, 1);
-    Matrix* ones_minus_out = subtract(ones, output[network->hidden_amount]);
-    Matrix* sigmoid_derivative = multiply(output[network->hidden_amount], ones_minus_out);
+    // back propagation
 
-    // create wanted out-put matrix
+    //list to store the new weights
+    Matrix* delta_weights[network->hidden_amount + 1];
+
+    // calculate the derivative of the sigmoid function of the input of the result layer
+    Matrix* sigmoid_prime = sigmoid_derivative(output[network->hidden_amount]);
+
+    // create wanted out-put matrix, calculate the difference and delta values (output layer only)
     Matrix* wanted_output = matrix_create(output[network->hidden_amount]->rows, output[network->hidden_amount]->columns);
     matrix_fill(wanted_output, 0);
     wanted_output->numbers[label][0] = 1;
-
-    // calculate difference to actual out-put
     Matrix* error = subtract(wanted_output, output[network->hidden_amount]);
+    Matrix* delta = multiply(sigmoid_prime, error);
 
-    // calculate delta for output layer nodes
-    Matrix* delta = multiply(sigmoid_derivative, error);
+    //calculate and apply the delta for all weights in out-put layer
+    delta_weights[network->hidden_amount] = calculate_weights_delta(output[network->hidden_amount - 1], delta);
 
-    //calculate the delta for all weights
-    Matrix* previous_out_with_one = matrix_add_bias(output[network->hidden_amount - 1]);
-    Matrix* transposed_previous_out_with_bias = transpose(previous_out_with_one);
-    Matrix* weights_delta_matrix = dot(delta, transposed_previous_out_with_bias);
+    //hidden layers
+    Matrix* previous_delta = delta;
+    for (int i = network->hidden_amount; i > 1; i--) {
+        delta = calculate_delta_hidden(previous_delta, network->weights[i], output[i - 1]);
+        delta_weights[i - 1] = calculate_weights_delta(output[i - 2], delta);
 
+        matrix_free(previous_delta);
+        previous_delta = delta;
+    }
+
+    // Input Layer
+    delta = calculate_delta_hidden(previous_delta, network->weights[1], output[0]);
+    delta_weights[0] = calculate_weights_delta(image_data, delta);
+
+    for (int i = 0; i < network->hidden_size ; ++i) {
+        apply_weights(network, delta_weights[i], i);
+    }
 
     // De-allocate stuff
     matrix_free(image_data);
@@ -206,22 +222,87 @@ void train_network(Neural_Network* network, Image *image, int label) {
         matrix_free(output[i]);
     }
 
-    matrix_free(ones);
-    matrix_free(sigmoid_derivative);
-    matrix_free(sigmoid_derivative);
+    for (int i = 0; i < network->hidden_amount + 1; ++i) {
+        matrix_free(delta_weights[i]);
+    }
+
+    matrix_free(sigmoid_prime);
     matrix_free(wanted_output);
     matrix_free(error);
     matrix_free(delta);
-    matrix_free(previous_out_with_one);
-    matrix_free(weights_delta_matrix);
-
-
+    matrix_free(previous_delta);
 
 }
 
-Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old) {
+Matrix* calculate_delta_hidden(Matrix* next_layer_delta, Matrix* weights, Matrix* current_layer_output) {
 
-    return NULL;
+    // remove bias weights from weights
+    Matrix* weights_without_biases = matrix_create(weights->rows, weights->columns - 1);
+    for (int i = 0; i < weights->rows; ++i) {
+        for (int j = 0; j < weights->columns - 1; ++j) {
+            weights_without_biases->numbers[i][j] = weights->numbers[i][j + 1];
+        }
+    }
+
+    // transpose the new weights and multiply with deltas
+    Matrix* transposed_weight_without_biases = transpose(weights_without_biases);
+    Matrix* sum_delta_weights = dot(transposed_weight_without_biases, next_layer_delta);
+
+    //multiply with derivative of current layer output
+    Matrix* sigmoid_prime = sigmoid_derivative(current_layer_output);
+
+    // multiply to find deltas for current layer
+    Matrix* new_deltas = multiply(sigmoid_prime, sum_delta_weights);
+
+    matrix_free(weights_without_biases);
+    matrix_free(transposed_weight_without_biases);
+    matrix_free(sum_delta_weights);
+    matrix_free(sigmoid_prime);
+
+    return new_deltas;
+}
+
+void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int index) {
+
+    if(index > network->hidden_amount + 1 || index < 0) {
+        printf("ERROR: Index out of range! (apply_weights)");
+        exit(1);
+    }
+    if(delta_weights_matrix->rows != network->weights[index]->rows ||
+    delta_weights_matrix->columns != network->weights[index]->columns) {
+        printf("ERROR: Size of weight matrices do not match! (apply_weights)");
+        exit(1);
+    }
+
+    for (int i = 0; i < delta_weights_matrix->rows; ++i) {
+        for (int j = 0; j < delta_weights_matrix->columns; ++j) {
+            network->weights[index]->numbers[i][j] += delta_weights_matrix->numbers[i][j];
+        }
+    }
+}
+
+Matrix* calculate_weights_delta(Matrix* previous_layer_output, Matrix* delta_matrix) {
+
+    Matrix* previous_out_with_one = matrix_add_bias(previous_layer_output);
+    Matrix* transposed_previous_out_with_bias = transpose(previous_out_with_one);
+    Matrix* weights_delta_matrix = dot(delta_matrix, transposed_previous_out_with_bias);
+
+    matrix_free(previous_out_with_one);
+    matrix_free(transposed_previous_out_with_bias);
+
+    return weights_delta_matrix;
+}
+
+Matrix* sigmoid_derivative(Matrix* matrix) {
+    Matrix* ones = matrix_create(matrix->rows, matrix->columns);
+    matrix_fill(ones, 1);
+    Matrix* ones_minus_out = subtract(ones, matrix);
+    Matrix* sigmoid_derivative = multiply(matrix, ones_minus_out);
+
+    matrix_free(ones);
+    matrix_free(ones_minus_out);
+
+    return sigmoid_derivative;
 }
 
 double sigmoid(double input) {

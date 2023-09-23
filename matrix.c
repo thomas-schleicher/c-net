@@ -395,7 +395,7 @@ Matrix* matrix_add_bias(Matrix* matrix) {
 
     result->numbers[0][0] = 1.0;
     for (int i = 0; i < matrix->rows; ++i) {
-        result->numbers[i + 1][0] = result->numbers[i][0];
+        result->numbers[i + 1][0] = matrix->numbers[i][0];
     }
 
     return result;
