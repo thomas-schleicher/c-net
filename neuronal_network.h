@@ -4,19 +4,11 @@
 
 typedef struct {
     int input_size;
-
-    // hidden layers
     int hidden_size;
-    Matrix* weights_1;
-    Matrix* bias_1;
-    Matrix* weights_2;
-    Matrix* bias_2;
-    Matrix* weights_3;
-    Matrix* bias_3;
-
+    int hidden_amount;
     int output_size;
-    Matrix* weights_output;
-    Matrix* bias_output;
+
+    Matrix** weights;
 
     double learning_rate;
 
@@ -24,7 +16,7 @@ typedef struct {
 
 static const int MAX_BYTES = 100;
 
-Neural_Network* new_network(int input_size, int hidden_size, int output_size, double learning_rate);
+Neural_Network* new_network(int input_size, int hidden_size, int hidden_amount, int output_size, double learning_rate);
 
 void randomize_network(Neural_Network* network, int scope);
 void free_network(Neural_Network* network);

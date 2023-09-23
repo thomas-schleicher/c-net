@@ -202,158 +202,20 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
 
 void train_network(Neural_Network* network, Image *image, int label) {
 
-    // Flatten the image into matrix
     Matrix* input = matrix_flatten(image->pixel_values, 0);
 
-    // Perform forward propagation
+    // Forward Pass
     Matrix* h1_dot = dot(network->weights_1, input);
-    Matrix* h1_add = add(h1_dot, network->bias_1);
-    Matrix* h1_outputs = apply(sigmoid, h1_add);
-
-    Matrix* h2_dot = dot(network->weights_2, h1_outputs);
-    Matrix* h2_add = add(h2_dot, network->bias_2);
-    Matrix* h2_outputs = apply(sigmoid, h2_add);
-
-    Matrix* h3_dot = dot(network->weights_3, h2_outputs);
-    Matrix* h3_add = add(h3_dot, network->bias_3);
-    Matrix* h3_outputs = apply(sigmoid, h3_add);
-
-    Matrix* final_dot = dot(network->weights_output, h3_outputs);
-    Matrix* final_add = add(final_dot, network->bias_output);
-    Matrix* final_outputs = apply(sigmoid, final_add);
-
-    // begin backpropagation
-
-    // The output of this is equal to an array of the size (10, 1) where each element is the derivative of the sigmoid function
-    // with the input of the neuron prior to the application of the activation function
-    Matrix* matrix_filled_with_ones = matrix_create(final_outputs->rows, 1);
-    matrix_fill(matrix_filled_with_ones, 1);
-    Matrix* temp1 = subtract(matrix_filled_with_ones, final_outputs);
-    Matrix* derivative_input = multiply(final_outputs, temp1); // * soll-ist
+    Matrix* h1_add = add()
 
 
-    // create label matrix, which indicates the correct output of the neural network
-    Matrix* correct_output = matrix_create(final_outputs->rows, final_outputs->columns);
-    matrix_fill(correct_output, 0);
-    correct_output->numbers[label][0] = 1;
-
-    // calculate the difference between what the value should be and what it actually is (MAYBE USE MES)
-    Matrix* error_difference = subtract(final_outputs, correct_output); // * output ist minus output soll
-
-    // multiply the derivative of the activation function with the input to the neuron
-    Matrix* sigma1 = multiply(derivative_input, error_difference);
-
-    // Calculate the delta for the weights
-    Matrix* temp5 = transpose(h3_outputs);
-    Matrix* temp6 = dot(sigma1, temp5);
-    Matrix* weights_delta = scale(temp6, network->learning_rate);
-    Matrix* bias_delta = scale(sigma1, network->learning_rate);
-
-    Matrix* temp7 = add(network->weights_output, weights_delta);
-    for (int i = 0; i < network->weights_output->rows; ++i) {
-        for (int j = 0; j < network->weights_output->columns; ++j) {
-            network->weights_output->numbers[i][j] = temp7->numbers[i][j];
-        }
-    }
-
-//    Matrix* temp8 = add(network->bias_output, bias_delta);
-//    for (int i = 0; i < network->bias_output->rows; ++i) {
-//        for (int j = 0; j < network->bias_output->columns; ++j) {
-//            network->bias_output->numbers[i][j] = temp8->numbers[i][j];
-//        }
-//    }
-
-    // other levels
-    Matrix* sigma2 = backPropagation(network->learning_rate, network->weights_3, network->bias_3, h3_outputs, h2_outputs, sigma1);
-    Matrix* sigma3 = backPropagation(network->learning_rate, network->weights_2, network->bias_2, h2_outputs, h1_outputs, sigma2);
-    Matrix* sigma4 = backPropagation(network->learning_rate, network->weights_1, network->bias_1, h1_outputs, input, sigma3);
 
     matrix_free(input);
-
-    matrix_free(h1_dot);
-    matrix_free(h1_add);
-    matrix_free(h1_outputs);
-
-    matrix_free(h2_dot);
-    matrix_free(h2_add);
-    matrix_free(h2_outputs);
-
-    matrix_free(h3_dot);
-    matrix_free(h3_add);
-    matrix_free(h3_outputs);
-
-    matrix_free(final_dot);
-    matrix_free(final_add);
-    matrix_free(final_outputs);
-
-    matrix_free(weights_delta);
-    matrix_free(bias_delta);
-
-    matrix_free(sigma1);
-    matrix_free(sigma2);
-    matrix_free(sigma3);
-    matrix_free(sigma4);
-
-
-    matrix_free(temp1);
-    matrix_free(derivative_input);
-    matrix_free(correct_output);
-    matrix_free(error_difference);
-    matrix_free(temp5);
-    matrix_free(temp6);
-    matrix_free(temp7);
-//    matrix_free(temp8);
-    matrix_free(matrix_filled_with_ones);
 }
 
 Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old) {
-    Matrix* temp7 = matrix_create(current_layer_activation->rows, 1);
-    matrix_fill(temp7, 1);
 
-    Matrix* temp1 = subtract(temp7, current_layer_activation);
-    Matrix* temp2 = multiply(temp1, current_layer_activation); // *sum(delta*weights)
-
-    for(int i = 0; i < current_layer_activation->rows; i++) {
-        double sum = 0;
-        for (int j = 0; j < sigma_old->rows; j++) {
-            sum += current_layer_activation->numbers[i][j] * sigma_old->numbers[j][0];
-        }
-        temp1->numbers[i][0] = sum;
-    }
-    Matrix* sigma_new = multiply(temp2, temp1);
-
-    // new sigma done
-
-    Matrix* temp3 = transpose(previous_layer_activation);
-    Matrix* temp4 = dot(sigma_new, temp3);
-    Matrix* weights_delta = scale(temp4, learning_rate);
-    Matrix* bias_delta = scale(sigma_new, learning_rate);
-
-    Matrix* temp5 = add(weights, weights_delta);
-    for (int i = 0; i < weights->rows; ++i) {
-        for (int j = 0; j < weights->columns; ++j) {
-            weights->numbers[i][j] = temp5->numbers[i][j];
-        }
-    }
-
-//    Matrix* temp6 = add(biases, bias_delta);
-//    for (int i = 0; i < biases->rows; ++i) {
-//        for (int j = 0; j < biases->columns; ++j) {
-//            biases->numbers[i][j] = temp6->numbers[i][j];
-//        }
-//    }
-
-    matrix_free(temp1);
-    matrix_free(temp2);
-    matrix_free(temp3);
-    matrix_free(temp4);
-    matrix_free(temp5);
-//    matrix_free(temp6);
-    matrix_free(temp7);
-    matrix_free(weights_delta);
-    matrix_free(bias_delta);
-
-    return sigma_new;
+    return NULL;
 }
 
 double sigmoid(double input) {
