@@ -68,8 +68,8 @@ Image * load_pgm_image(char * image_file_string){
 Image** import_images(char* image_file_string, char* label_file_string, int* _number_imported, int count) {
     printf("Loading Images\n");
     // create file pointer for the image and label data
-    FILE* image_file = fopen(image_file_string, "r");
-    FILE* label_file = fopen(label_file_string, "r");
+    FILE* image_file = fopen(image_file_string, "rb");
+    FILE* label_file = fopen(label_file_string, "rb");
 
     // check if the file could be opened
     if(image_file == NULL || label_file == NULL) {
