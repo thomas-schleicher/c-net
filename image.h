@@ -1,8 +1,6 @@
 #pragma once
 #include "matrix.h"
 
-#include "matrix.h"
-
 typedef struct {
     Matrix* pixel_values;
     char label;
@@ -27,6 +25,7 @@ static const int MAGIC_NUMBER_IMAGES = 2051;
  */
 Image ** import_images(char* image_file_string, char* label_file_string, int* number_imported, int count);
 Image * load_pgm_image(char * image_file_string);
+Matrix* create_one_hot_result(Image* image);
 void img_print (Image* image);
 void img_visualize(Image*image);
 void img_free (Image* image);

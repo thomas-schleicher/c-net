@@ -343,9 +343,9 @@ Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, 
 
 //void batch_train_network(Neural_Network* network, Image** images, int size);
 
-double sigmoid(double input) {
-    return 1.0 / (1 + exp(-1 * input));
-}
+//double sigmoid(double input) {
+//    return 1.0 / (1 + exp(-1 * input));
+//}
 
 double sigmoid_derivative(double x) {
     return x * (1.0 - x);
