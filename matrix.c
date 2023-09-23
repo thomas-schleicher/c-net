@@ -384,3 +384,19 @@ void matrix_randomize(Matrix* matrix, int n) {
         }
     }
 }
+
+Matrix* matrix_add_bias(Matrix* matrix) {
+    if(matrix->columns != 1) {
+        printf("ERROR: The size of the matrix does not match an input matrix! (matrix_add_bias)");
+        exit(1);
+    }
+
+    Matrix* result = matrix_create(matrix->rows + 1, matrix->columns);
+
+    result->numbers[0][0] = 1.0;
+    for (int i = 0; i < matrix->rows; ++i) {
+        result->numbers[i + 1][0] = result->numbers[i][0];
+    }
+
+    return result;
+}

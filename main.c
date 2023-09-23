@@ -14,7 +14,8 @@ int main() {
 
 
 
-//    for (int i = 0; i < 20000; ++i) {
+//    for (int i = 0; i < 60000; ++i) {
+
 //        train_network(nn, images[i], images[i]->label);
 //        matrix_print(nn->weights_output);
 //    }
@@ -22,6 +23,6 @@ int main() {
 //    train_network(nn, images[0], images[0]->label);
 //    train_network(nn, images[0], images[0]->label);
 
-    printf("%lf\n", measure_network_accuracy(nn, images, 2000));
+    printf("%lf\n", measure_network_accuracy(nn, images, 10000));
 
 }

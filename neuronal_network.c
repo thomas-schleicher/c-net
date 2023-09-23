@@ -10,20 +10,21 @@ Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, 
 
 Neural_Network* new_network(int input_size, int hidden_size, int hidden_amount, int output_size, double learning_rate){
     Neural_Network* network = malloc(sizeof(Neural_Network));
-    // initialize networks variables
-    network->hidden_size = hidden_size;
+
     network->input_size = input_size;
+    network->hidden_size = hidden_size;
+    network->hidden_amount = hidden_amount;
     network->output_size = output_size;
     network->learning_rate = learning_rate;
 
-    Matrix** weights = malloc(sizeof(Matrix)*(hidden_amount + 1));
+    Matrix** weights = malloc(sizeof(Matrix*) * (hidden_amount + 1));
     network->weights = weights;
 
-    network->weights[0] = matrix_create(hidden_size, input_size+1);
+    network->weights[0] = matrix_create(hidden_size, input_size + 1);
     for(int i=1;i<hidden_amount;i++){
-        network->weights[i] = matrix_create(hidden_size, hidden_size+1);
+        network->weights[i] = matrix_create(hidden_size, hidden_size + 1);
     }
-    network->weights[hidden_amount] = matrix_create(output_size, hidden_size);
+    network->weights[hidden_amount] = matrix_create(output_size, hidden_size + 1);
 
     return network;
 }
@@ -131,51 +132,91 @@ Matrix* predict_image(Neural_Network* network, Image* image){
 }
 
 Matrix* predict(Neural_Network* network, Matrix* image_data) {
-    Matrix* h1_dot = dot(network->weights_1, image_data);
-    Matrix* h1_add = add(h1_dot, network->bias_1);
-    Matrix* h1_outputs = apply(sigmoid, h1_add);
 
-    Matrix* h2_dot = dot(network->weights_2, h1_outputs);
-    Matrix* h2_add = add(h2_dot, network->bias_2);
-    Matrix* h2_outputs = apply(sigmoid, h2_add);
+    Matrix* input = matrix_add_bias(image_data);
 
-    Matrix* h3_dot = dot(network->weights_3, h2_outputs);
-    Matrix* h3_add = add(h3_dot, network->bias_3);
-    Matrix* h3_outputs = apply(sigmoid, h3_add);
+    Matrix* output[network->hidden_amount + 1];
+    for (int i = 0; i < network->hidden_amount + 1; ++i) {
+        Matrix* neuron_input = dot(network->weights[i], input);
+        Matrix* neuron_activation = apply(sigmoid, neuron_input);
 
-    Matrix* final_dot = dot(network->weights_output, h3_outputs);
-    Matrix* final_add = add(final_dot, network->bias_output);
-    Matrix* final_outputs = apply(sigmoid, final_add);
+        output[i] = neuron_activation;
 
-    matrix_free(h1_dot);
-    matrix_free(h1_add);
-    matrix_free(h1_outputs);
+        matrix_free(neuron_input);
+        matrix_free(input);
 
-    matrix_free(h2_dot);
-    matrix_free(h2_add);
-    matrix_free(h2_outputs);
+        input = matrix_add_bias(neuron_activation);
+    }
 
-    matrix_free(h3_dot);
-    matrix_free(h3_add);
-    matrix_free(h3_outputs);
+    for (int i = 0; i < network->hidden_amount; ++i) {
+        matrix_free(output[i]);
+    }
 
-    matrix_free(final_dot);
-    matrix_free(final_add);
+    matrix_free(input);
 
-    return final_outputs;
+    return output[network->hidden_amount + 1];
 }
 
 void train_network(Neural_Network* network, Image *image, int label) {
 
-    Matrix* input = matrix_flatten(image->pixel_values, 0);
+    Matrix* image_data = matrix_flatten(image->pixel_values, 0);
+    Matrix* input = matrix_add_bias(image_data);
 
-    // Forward Pass
-    Matrix* h1_dot = dot(network->weights_1, input);
-    Matrix* h1_add = add()
+    Matrix* output[network->hidden_amount + 1];
+    for (int i = 0; i < network->hidden_amount + 1; ++i) {
+        Matrix* neuron_input = dot(network->weights[i], input);
+        Matrix* neuron_activation = apply(sigmoid, neuron_input);
+
+        output[i] = neuron_activation;
+
+        matrix_free(neuron_input);
+        matrix_free(input);
+
+        input = matrix_add_bias(neuron_activation);
+    }
+
+    // calculate the derivative of the sigmoid function of the input of the result layer
+    Matrix* ones = matrix_create(output[network->hidden_amount]->rows, output[network->hidden_amount]->columns);
+    matrix_fill(ones, 1);
+    Matrix* ones_minus_out = subtract(ones, output[network->hidden_amount]);
+    Matrix* sigmoid_derivative = multiply(output[network->hidden_amount], ones_minus_out);
+
+    // create wanted out-put matrix
+    Matrix* wanted_output = matrix_create(output[network->hidden_amount]->rows, output[network->hidden_amount]->columns);
+    matrix_fill(wanted_output, 0);
+    wanted_output->numbers[label][0] = 1;
+
+    // calculate difference to actual out-put
+    Matrix* error = subtract(wanted_output, output[network->hidden_amount]);
+
+    // calculate delta for output layer nodes
+    Matrix* delta = multiply(sigmoid_derivative, error);
+
+    //calculate the delta for all weights
+    Matrix* previous_out_with_one = matrix_add_bias(output[network->hidden_amount - 1]);
+    Matrix* transposed_previous_out_with_bias = transpose(previous_out_with_one);
+    Matrix* weights_delta_matrix = dot(delta, transposed_previous_out_with_bias);
 
 
-
+    // De-allocate stuff
+    matrix_free(image_data);
     matrix_free(input);
+
+    for (int i = 0; i < network->hidden_amount + 1; ++i) {
+        matrix_free(output[i]);
+    }
+
+    matrix_free(ones);
+    matrix_free(sigmoid_derivative);
+    matrix_free(sigmoid_derivative);
+    matrix_free(wanted_output);
+    matrix_free(error);
+    matrix_free(delta);
+    matrix_free(previous_out_with_one);
+    matrix_free(weights_delta_matrix);
+
+
+
 }
 
 Matrix * backPropagation(double learning_rate, Matrix* weights, Matrix* biases, Matrix* current_layer_activation, Matrix* previous_layer_activation, Matrix* sigma_old) {

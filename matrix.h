@@ -21,6 +21,7 @@ Matrix* load_next_matrix(FILE * save_file);
 void matrix_randomize(Matrix* matrix, int n); // don't understand the usage of the n
 int matrix_argmax(Matrix* matrix);
 Matrix* matrix_flatten(Matrix* matrix, int axis);
+Matrix* matrix_add_bias(Matrix* matrix);
 
 /*
  * These methods won't change or free the input matrix.
@@ -38,6 +39,3 @@ Matrix* scale(Matrix* matrix, double value);
 Matrix* addScalar(Matrix* matrix, double value);
 Matrix* transpose(Matrix* matrix);
 double matrix_sum(Matrix* matrix);
-
-
-
