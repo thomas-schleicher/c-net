@@ -7,6 +7,13 @@
 #include <math.h>
 #include "image.h"
 
+typedef struct{
+    Neural_Network * network;
+    Matrix ** weights_delta;
+    Matrix ** biases_delta
+};
+
+
 void evaluate(Neural_Network * network, Image** images, int imageCount){
     int numCorrect = 0;
     for(int i = 0; i <= imageCount; i++){
@@ -23,7 +30,7 @@ void evaluate(Neural_Network * network, Image** images, int imageCount){
 }
 
 double sigmoid(double input) {
-    return 1.0 / (1 + exp(-1 * input));
+    return 1.0 / (1 + exp(-input));
 }
 
 double sigmoid_prime(double input){
@@ -62,13 +69,15 @@ void back_prop(Neural_Network * network, Image* training_sample, Matrix ** weigh
     //calculate delta for last layer;
     //bias
     Matrix * subtraction_result = subtract(layer_activations[network->layer_count-1], desired_result);
-    Matrix * delta = apply(sigmoid_prime, subtraction_result);
+    Matrix * s_prime = apply(sigmoid_prime, layer_activations_wo_sigmoid[network->layer_count-2]);
+    Matrix * delta = multiply(subtraction_result, s_prime);
+    matrix_free(s_prime);
     matrix_free(subtraction_result);
-    biases_delta[network->layer_count-1] = delta;
+    biases_delta[network->layer_count-2] = delta;
 
     //weights
     Matrix * transposed = transpose(layer_activations[network->layer_count-2]);
-    weights_delta[network->layer_count-1] = dot(delta, transposed);
+    weights_delta[network->layer_count-2] = dot(delta, transposed);
     matrix_free(transposed);
     transposed = NULL;
 
@@ -146,7 +155,12 @@ void update_batch(Neural_Network * network, Image** training_data, int batch_sta
         matrix_free(network->biases[i]);
         network->biases[i] = new_biases;
     }
-    //TODO: update mini batch
+    free(sum_weights_delta);
+    free(sum_biases_delta);
+    for(int i = 0; i < network->layer_count - 1; i++){
+        matrix_free(weights_delta[i]);
+        matrix_free(biases_delta[i]);
+    }
 
 
 }

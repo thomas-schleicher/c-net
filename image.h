@@ -6,10 +6,6 @@ typedef struct {
     char label;
 } Image;
 
-typedef struct {
-    const Image* image;
-    const size_t size;
-} Image_Container;
 
 static const int MAGIC_NUMBER_LABEL = 2049;
 
