@@ -210,7 +210,7 @@ void train_network(Neural_Network* network, Image *image, int label) {
     delta = calculate_delta_hidden(previous_delta, network->weights[1], output[0]);
     delta_weights[0] = calculate_weights_delta(image_data, delta);
 
-    for (int i = 0; i < network->hidden_size ; ++i) {
+    for (int i = 0; i < network->hidden_amount + 1; ++i) {
         apply_weights(network, delta_weights[i], i);
     }
 
@@ -264,7 +264,7 @@ Matrix* calculate_delta_hidden(Matrix* next_layer_delta, Matrix* weights, Matrix
 
 void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int index) {
 
-    if(index > network->hidden_amount + 1 || index < 0) {
+    if(index > network->hidden_amount || index < 0) {
         printf("ERROR: Index out of range! (apply_weights)");
         exit(1);
     }
@@ -274,8 +274,8 @@ void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int in
         exit(1);
     }
 
-    for (int i = 0; i < delta_weights_matrix->rows; ++i) {
-        for (int j = 0; j < delta_weights_matrix->columns; ++j) {
+    for (int i = 0; i < delta_weights_matrix->rows; i++) {
+        for (int j = 0; j < delta_weights_matrix->columns; j++) {
             network->weights[index]->numbers[i][j] += delta_weights_matrix->numbers[i][j];
         }
     }
