@@ -16,7 +16,7 @@ Neural_Network* new_network(int input_size, int hidden_size, int hidden_amount, 
     network->output_size = output_size;
     network->learning_rate = learning_rate;
 
-    Matrix** weights = malloc(sizeof(Matrix)*(hidden_amount + 1));
+    Matrix** weights = malloc(sizeof(Matrix*)*(hidden_amount + 1));
     network->weights = weights;
 
     network->weights[0] = matrix_create(hidden_size, input_size+1);
