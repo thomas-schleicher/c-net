@@ -11,17 +11,19 @@ int main() {
 //    matrix_print(images[0]->pixel_values);
 //    matrix_print(images[1]->pixel_values);
 
-    Neural_Network* nn = new_network(28*28, 32, 2, 10, 0.1);
+    Neural_Network* nn = new_network(28*28, 40, 5, 10, 0.08);
     randomize_network(nn, 1);
-    //    save_network(nn);
-    //    Neural_Network* nn = load_network("../networks/test1.txt");
+//        Neural_Network* nn = load_network("../networks/newest_network.txt");
+//    printf("Done loading!\n");
 
 //    batch_train(nn, images, 20000, 20);
 
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 30000; ++i) {
         train_network(nn, images[i], images[i]->label);
     }
 
-    printf("%lf\n", measure_network_accuracy(nn, images, 10));
+    save_network(nn);
+
+    printf("%lf\n", measure_network_accuracy(nn, images, 10000));
 
 }

@@ -5,7 +5,6 @@
 
 double sigmoid(double input);
 Matrix* predict(Neural_Network* network, Matrix* image_data);
-double square(double input);
 Matrix* sigmoid_derivative(Matrix* matrix);
 Matrix *calculate_weights_delta(Matrix *previous_layer_output, Matrix *delta_matrix, double learning_rate);
 void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int index);
@@ -72,7 +71,7 @@ void save_network(Neural_Network* network) {
         matrix_save(network->weights[i], file_name);
     }
 
-    printf("Network Saved!");
+    printf("Network Saved!\n");
 }
 
 Neural_Network* load_network(char* file) {
@@ -120,9 +119,6 @@ double measure_network_accuracy(Neural_Network* network, Image** images, int amo
 
     for (int i = 0; i < amount; i++) {
         Matrix* prediction = predict_image(network, images[i]);
-
-        matrix_print(prediction);
-        printf("Label: %c\n", images[i]->label);
 
         int guess = matrix_argmax(prediction);
         int answer = (unsigned char) images[i]->label;
@@ -361,8 +357,4 @@ Matrix* sigmoid_derivative(Matrix* matrix) {
 
 double sigmoid(double input) {
     return 1.0 / (1 + exp(-1 * input));
-}
-
-double square(double input) {
-    return input * input;
 }
