@@ -29,30 +29,16 @@ Neural_Network* new_network(int input_size, int hidden_size, int output_size, do
 }
 
 void randomize_network(Neural_Network* network, int scope){
-    matrix_randomize(network->weights_1, scope);
-    matrix_randomize(network->weights_2, scope);
-    matrix_randomize(network->weights_3, scope);
-    matrix_randomize(network->weights_output, scope);
-//    matrix_randomize(network->bias_1, scope);
-//    matrix_randomize(network->bias_2, scope);
-//    matrix_randomize(network->bias_3, scope);
-//    matrix_randomize(network->bias_output, scope);
-
-    matrix_fill(network->bias_1, 1);
-    matrix_fill(network->bias_2, 1);
-    matrix_fill(network->bias_3, 1);
-    matrix_fill(network->bias_output, 1);
+    for (int i = 0; i < network->hidden_amount + 1; i++) {
+        matrix_randomize(network->weights[i], scope);
+    }
 }
 
 void free_network(Neural_Network* network){
-    matrix_free(network->weights_1);
-    matrix_free(network->weights_2);
-    matrix_free(network->weights_3);
-    matrix_free(network->weights_output);
-    matrix_free(network->bias_1);
-    matrix_free(network->bias_2);
-    matrix_free(network->bias_3);
-    matrix_free(network->bias_output);
+    for (int i = 0; i < network->hidden_amount + 1; i++) {
+        matrix_free(network->weights[i]);
+    }
+    free(network->weights);
     free(network);
 }
 
@@ -72,26 +58,15 @@ void save_network(Neural_Network* network) {
     // save network size to first line of the file
     fprintf(save_file, "%d\n", network->input_size);
     fprintf(save_file, "%d\n", network->hidden_size);
+    fprintf(save_file, "%d\n", network->hidden_amount);
     fprintf(save_file, "%d\n", network->output_size);
 
     // close the file
     fclose(save_file);
 
-    // save first layer
-    matrix_save(network->bias_1, file_name);
-    matrix_save(network->weights_1, file_name);
-
-    // save second layer
-    matrix_save(network->bias_2, file_name);
-    matrix_save(network->weights_2, file_name);
-
-    // save third layer
-    matrix_save(network->bias_3, file_name);
-    matrix_save(network->weights_3, file_name);
-
-    // save output weights
-    matrix_save(network->bias_output, file_name);
-    matrix_save(network->weights_output, file_name);
+    for (int i = 0; i < network->hidden_amount + 1; ++i) {
+        matrix_save(network->weights[i], file_name);
+    }
 
     printf("Network Saved!");
 }
@@ -114,20 +89,16 @@ Neural_Network* load_network(char* file) {
     fgets(buffer, MAX_BYTES, save_file);
     int hidden_size = (int) strtol(buffer, NULL, 10);
     fgets(buffer, MAX_BYTES, save_file);
+    int hidden_amount = (int) strtol(buffer, NULL, 10);
+    fgets(buffer, MAX_BYTES, save_file);
     int output_size = (int) strtol(buffer, NULL, 10);
 
     // create a new network to fill with the saved data
-    Neural_Network* saved_network = new_network(input_size, hidden_size, output_size, 0);
+    Neural_Network* saved_network = new_network(input_size, hidden_size, hidden_amount, output_size, 0);
 
-    // load matrices from file into struct
-    saved_network->bias_1 = load_next_matrix(save_file);
-    saved_network->weights_1 = load_next_matrix(save_file);
-    saved_network->bias_2 = load_next_matrix(save_file);
-    saved_network->weights_2 = load_next_matrix(save_file);
-    saved_network->bias_3 = load_next_matrix(save_file);
-    saved_network->weights_3 = load_next_matrix(save_file);
-    saved_network->bias_output = load_next_matrix(save_file);
-    saved_network->weights_output = load_next_matrix(save_file);
+    for (int i = 0; i < saved_network->hidden_amount + 1; ++i) {
+        saved_network->weights[i] = load_next_matrix(save_file);
+    }
 
     // return saved network
     fclose(save_file);
@@ -135,15 +106,9 @@ Neural_Network* load_network(char* file) {
 }
 
 void print_network(Neural_Network* network) {
-    matrix_print(network->bias_1);
-    matrix_print(network->bias_2);
-    matrix_print(network->bias_3);
-    matrix_print(network->bias_output);
-
-    matrix_print(network->weights_1);
-    matrix_print(network->weights_2);
-    matrix_print(network->weights_3);
-    matrix_print(network->weights_output);
+    for (int i = 0; i < network->hidden_amount; ++i) {
+        matrix_print(network->weights[i]);
+    }
 }
 
 double measure_network_accuracy(Neural_Network* network, Image** images, int amount) {
