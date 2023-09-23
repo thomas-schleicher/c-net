@@ -276,7 +276,7 @@ void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int in
 
     for (int i = 0; i < delta_weights_matrix->rows; i++) {
         for (int j = 0; j < delta_weights_matrix->columns; j++) {
-            network->weights[index]->numbers[i][j] += delta_weights_matrix->numbers[i][j];
+            network->weights[index]->numbers[i][j] += delta_weights_matrix->numbers[i][j]; // multiply delta_weights_matrix with learning rate AND - instead of + because soll-ist
         }
     }
 }
