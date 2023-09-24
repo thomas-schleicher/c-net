@@ -4,6 +4,13 @@
 #include "image.h"
 
 #include "neural_net.h"
+#include <stdlib.h>
+void testFree(Image ** images,  int count){
+    for(int i = 0; i < count; i++){
+        img_free(images[i]);
+    }
+    free(images);
+}
 
 int main() {
 //    Image** images = import_images("../data/train-images.idx3-ubyte", "../data/train-labels.idx1-ubyte", NULL, 60000);
@@ -30,6 +37,8 @@ int main() {
 //    int pause;
     int imported_count = 0;
     Image** images = import_images("../data/train-images.idx3-ubyte", "../data/train-labels.idx1-ubyte", &imported_count, 10000);
-    Neural_Network * net = create_network(3, 28*28, 30, 10);
-    train_network_with_batches(net, images, imported_count, 1, 10, 3);
+    testFree(images, imported_count);
+
+    //Neural_Network * net = create_network(3, 28*28, 30, 10);
+    //train_network_with_batches(net, images, imported_count, 1, 10, 3);
 }
