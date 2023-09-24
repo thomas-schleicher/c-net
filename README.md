@@ -23,7 +23,7 @@ This project was brought to you by the following contributors:
 - Dworski, Daniel
 - Walcher, Raphael
 
-We would like to express our gratitude to the following project, which served as an inspiration and reference:
+We would like to express our gratitude to the following sources, which served as an inspiration and reference:
 - [MNIST from Scratch](https://github.com/markkraay/mnist-from-scratch) by markkraay
 - [Neural Network Framework in C](https://medium.com/analytics-vidhya/building-neural-network-framework-in-c-using-backpropagation-8ad589a0752d)
 - [Simple Neural Network Implementation in C](https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547)
@@ -32,3 +32,5 @@ We would like to express our gratitude to the following project, which served as
 
 ## Project Status
 The project is considered finished, but ongoing optimizations and improvements may still be in progress.
+
+![amogus](https://media.tenor.com/7kpsm7kU330AAAAd/sussy-among-us.gif)
