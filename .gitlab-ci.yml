@@ -48,7 +48,7 @@ release:
 
     assets:
       links:
-        - name: c_net
+        - name: c_net linux download (precompiled)
           url: '${CI_PROJECT_URL}/-/jobs/${BUILD_JOB_ID}/artifacts/file/c_net'
 
   script: echo "Define your deployment script!"
