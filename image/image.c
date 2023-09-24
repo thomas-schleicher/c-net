@@ -159,7 +159,6 @@ Image** import_images(char* image_file_string, char* label_file_string, int* _nu
 }
 
 void img_print (Image* img) {
-
     //print the image
     matrix_print(img->pixel_values);
     //print the number of the image
@@ -183,7 +182,7 @@ void img_free (Image* img) {
     free(img);
 }
 
-void images_free (Image** images, int quantity){
+void images_free(Image** images, int quantity) {
     //frees every single image
     for(int i=0;i<quantity;i++){
         img_free(images[i]);

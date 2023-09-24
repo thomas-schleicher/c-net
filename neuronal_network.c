@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "neuronal_network.h"
+#include "matrix\operations.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -120,7 +121,7 @@ double measure_network_accuracy(Neural_Network* network, Image** images, int amo
     for (int i = 0; i < amount; i++) {
         Matrix* prediction = predict_image(network, images[i]);
 
-        int guess = matrix_argmax(prediction);
+        int guess = argmax(prediction);
         int answer = (unsigned char) images[i]->label;
 
         if (guess == answer) {
