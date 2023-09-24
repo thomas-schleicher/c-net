@@ -12,6 +12,9 @@
 # see https://hub.docker.com/_/gcc/
 
 image: gcc
+stages:
+  - build
+  - release
 
 build:
   stage: build
@@ -24,14 +27,25 @@ build:
     - cmake --build .
   artifacts:
     paths:
-      - c_make
-      # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
-      # cache:
-      #   paths:
-      #     - "*.o"
+      - c_net
+    reports:
+      dotenv: CI_JOB_ID.env
+     
 
 
-deploy:
-  stage: deploy
+release:
+  stage: release
+  needs:
+    - build
+  release:
+    tag_name: $CI_COMMIT_SHORT_SHA'
+    description: "latest"
+
+    assets:
+      links:
+        - name: c_net
+          url: '${CI_PROJECT_URL}/-/jobs/${BUILD_JOB_ID}/artifacts/file/c_net'
+
   script: echo "Define your deployment script!"
-  environment: production
+  
+
