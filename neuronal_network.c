@@ -117,7 +117,8 @@ double measure_network_accuracy(Neural_Network* network, Image** images, int amo
     int num_correct = 0;
 
     printf("evaluating network\n");
-    for (int i = 50001; i < amount; i++) {
+    if(amount > 10000) amount = 10000;
+    for (int i = 0; i < amount; i++) {
         updateBar(i*100/amount);
         Matrix* prediction = predict_image(network, images[i]);
 

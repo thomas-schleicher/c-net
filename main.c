@@ -8,7 +8,7 @@
 #include "util.h"
 
 void parsingErrorPrintHelp(){
-    printf("Syntax: c_net [train | detect]\n");
+    printf("Syntax: c_net [train | predict]\n");
     printf("commands:\n");
     printf("train\t train the network\n");
     printf("predict\t load a pgm image and predict_demo the number\n");
@@ -58,19 +58,18 @@ void train(int argc, char** arguments) {
     }
     char *save_path = arguments[6];
     int imported = 0;
-    Image **images = import_images(image_file, label_file, &imported, 50000);
+    Image ** images = import_images(image_file, label_file, &imported, 60000);
+    Image ** evaluation_images = images+50000;
 
-//    for(int i = 0; i < imported; i++){
-//        matrix_save(images[i]->pixel_values, "images.txt");
-//    }
-//    exit(1);
+    int training_image_count = 50000;
+    int testing_image_count = 10000;
 
     Neural_Network *nn = new_network(28 * 28, neurons_per_layer, hidden_count, 10, learning_rate);
     randomize_network(nn, 1);
     printf("training_network\n");
     for(int epoch = 1; epoch <= epochs; epoch++){
         printf("epoch %d\n", epoch);
-        for (int i = 0; i < imported; i++) {
+        for (int i = 0; i < training_image_count; i++) {
             if (i % 1000 == 0) {
                 updateBar(i * 100 / imported);
             }
@@ -78,7 +77,7 @@ void train(int argc, char** arguments) {
         }
         updateBar(100);
         printf("\n");
-        printf("accuracy %lf\n", measure_network_accuracy(nn, images, 10000));
+        printf("accuracy %lf\n", measure_network_accuracy(nn, evaluation_images, testing_image_count));
     }
     printf("done training!\n");
     save_network(nn, save_path);
