@@ -14,12 +14,13 @@ void big_endian_to_c_uint(const char * bytes, void * target, int size) {
 
 void read_until_space_or_newline(char * buff, int maxCount, FILE * fptr){
     int bufferOffset = 0;
-    char c = -1;
+    char c;
+    int counter = 0;
     do{
         c = (char)getc(fptr);
         buff[bufferOffset++] = c;
 
-    }while(!feof(fptr) && c != 0 && c != ' ' && c !='\n');
+    }while(!feof(fptr) && c != 0 && c != ' ' && c !='\n' && counter++ < maxCount);
     buff[bufferOffset-1] = 0;
 }
 
@@ -29,8 +30,7 @@ Image * load_pgm_image(char * image_file_string){
     image->label = -1;
 
 
-    char buffer[100];
-    int magic_number = 0;
+    char buffer[2048];
     fgets(buffer, 4, fptr);
     if(buffer[0] != 'P' || buffer[1] != '5'){
         printf("Wrong file Format");
@@ -40,17 +40,16 @@ Image * load_pgm_image(char * image_file_string){
         fgets(buffer, 1024, fptr);
     }
 
-    int image_width, image_height, image_length, image_white ;
+    int image_width, image_height, image_white ;
     read_until_space_or_newline(buffer, 10, fptr);
-    image_width = strtol(buffer, NULL, 10);
+    image_width = (int)strtol(buffer, NULL, 10);
 
     read_until_space_or_newline(buffer, 10, fptr);
-    image_height = strtol(buffer, NULL, 10);
+    image_height = (int)strtol(buffer, NULL, 10);
 
     read_until_space_or_newline(buffer, 10, fptr);
-    image_white = strtol(buffer, NULL, 10);
+    image_white = (int)strtol(buffer, NULL, 10);
 
-    image_length = image_width * image_height;
 
     image->pixel_values = matrix_create(image_height, image_width);
     for(int i = 0; i < image_height; i++){
