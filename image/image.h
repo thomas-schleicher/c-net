@@ -1,7 +1,7 @@
 #pragma once
-#include "matrix.h"
+#include "../matrix/matrix.h"
 
-#include "matrix.h"
+#include "../matrix/matrix.h"
 
 typedef struct {
     Matrix* pixel_values;

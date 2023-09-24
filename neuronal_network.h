@@ -1,6 +1,6 @@
 
-#include "matrix.h"
-#include "image.h"
+#include "matrix/matrix.h"
+#include "image/image.h"
 
 typedef struct {
     int input_size;

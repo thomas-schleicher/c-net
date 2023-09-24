@@ -6,8 +6,8 @@
 double sigmoid(double input);
 Matrix* predict(Neural_Network* network, Matrix* image_data);
 Matrix* sigmoid_derivative(Matrix* matrix);
-Matrix *calculate_weights_delta(Matrix *previous_layer_output, Matrix *delta_matrix, double learning_rate);
-void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int index);
+Matrix *calculate_weights_delta(Matrix *previous_layer_output, Matrix *delta_matrix);
+void apply_weights(Neural_Network *network, Matrix *delta_weights_matrix, int index, double learning_rate);
 Matrix* calculate_delta_hidden(Matrix* next_layer_delta, Matrix* weights, Matrix* current_layer_output);
 
 Neural_Network* new_network(int input_size, int hidden_size, int hidden_amount, int output_size, double learning_rate){
@@ -167,22 +167,26 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
 
 //void batch_train(Neural_Network* network, Image** images, int amount, int batch_size) {
 //
-//    for (int i = 0; i < amount; ++i) {
+//    if(amount % batch_size != 0) {
+//        printf("ERROR: Batch Size is not compatible with image amount! (batch_train)");
+//        exit(1);
+//    }
 //
-//        if(amount % 1000 == 0) {
-//            printf("1k pics!\n");
-//        }
+//    int image_index = 0;
+//
+//    for (int i = 0; i < amount / batch_size; ++i) {
 //
 //        Matrix* batch_weights[network->hidden_amount + 1];
 //
+//        for (int j = 0; j < network->hidden_amount + 1; j++) {
+//            batch_weights[j] = matrix_create(network->weights[j]->rows, network->weights[j]->columns);
+//            matrix_fill(batch_weights[j], 0);
+//        }
+//
 //        for (int j = 0; j < batch_size; ++j) {
-//            Matrix** delta_weights = train_network(network, images[i], images[i]->label);
+//            Matrix** delta_weights = train_network(network, images[image_index], images[image_index]->label);
 //
 //            for (int k = 0; k < network->hidden_amount + 1; k++) {
-//                if(j == 0) {
-//                    batch_weights[k] = delta_weights[k];
-//                    continue;
-//                }
 //
 //                Matrix* temp_result = add(batch_weights[k], delta_weights[k]);
 //
@@ -193,14 +197,16 @@ Matrix* predict(Neural_Network* network, Matrix* image_data) {
 //            }
 //
 //            free(delta_weights);
+//
+//            image_index++;
 //        }
 //
-//        for (int j = 0; j < network->hidden_amount + 1; ++j) {
+//        for (int j = 0; j < network->hidden_amount + 1; j++) {
 //            Matrix* average_delta_weight = scale(batch_weights[j], (1.0 / batch_size));
-//            apply_weights(network, average_delta_weight, j);
+//            apply_weights(network, average_delta_weight, j, network->learning_rate);
 //
-//            matrix_free(average_delta_weight);
 //            matrix_free(batch_weights[j]);
+//            matrix_free(average_delta_weight);
 //        }
 //    }
 //}
@@ -239,13 +245,13 @@ void train_network(Neural_Network* network, Image *image, int label) {
     Matrix* delta = multiply(sigmoid_prime, error);
 
     //calculate and apply the delta for all weights in out-put layer
-    delta_weights[network->hidden_amount] = calculate_weights_delta(output[network->hidden_amount - 1], delta, network->learning_rate);
+    delta_weights[network->hidden_amount] = calculate_weights_delta(output[network->hidden_amount - 1], delta);
 
     //hidden layers
     Matrix* previous_delta = delta;
     for (int i = network->hidden_amount; i > 1; i--) {
         delta = calculate_delta_hidden(previous_delta, network->weights[i], output[i - 1]);
-        delta_weights[i - 1] = calculate_weights_delta(output[i - 2], delta, network->learning_rate);
+        delta_weights[i - 1] = calculate_weights_delta(output[i - 2], delta);
 
         matrix_free(previous_delta);
         previous_delta = delta;
@@ -253,10 +259,16 @@ void train_network(Neural_Network* network, Image *image, int label) {
 
     // Input Layer
     delta = calculate_delta_hidden(previous_delta, network->weights[1], output[0]);
-    delta_weights[0] = calculate_weights_delta(image_data, delta, network->learning_rate);
+    delta_weights[0] = calculate_weights_delta(image_data, delta);
+
+
+    // if you want to use this method as a standalone method this part needs to be uncommented
+    for (int i = 0; i < network->hidden_amount + 1; ++i) {
+        apply_weights(network, delta_weights[i], i, network->learning_rate);
+    }
 
     for (int i = 0; i < network->hidden_amount + 1; ++i) {
-        apply_weights(network, delta_weights[i], i);
+        matrix_free(delta_weights[i]);
     }
 
     // De-allocate stuff
@@ -267,9 +279,7 @@ void train_network(Neural_Network* network, Image *image, int label) {
         matrix_free(output[i]);
     }
 
-    for (int i = 0; i < network->hidden_amount + 1; ++i) {
-        matrix_free(delta_weights[i]);
-    }
+
 
     matrix_free(sigmoid_prime);
     matrix_free(wanted_output);
@@ -308,7 +318,7 @@ Matrix* calculate_delta_hidden(Matrix* next_layer_delta, Matrix* weights, Matrix
     return new_deltas;
 }
 
-void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int index) {
+void apply_weights(Neural_Network *network, Matrix *delta_weights_matrix, int index, double learning_rate) {
 
     if(index > network->hidden_amount || index < 0) {
         printf("ERROR: Index out of range! (apply_weights)");
@@ -320,27 +330,28 @@ void apply_weights(Neural_Network* network, Matrix* delta_weights_matrix, int in
         exit(1);
     }
 
+    // scale by learning rate
+    Matrix* scaled_delta_weights_matrix = scale(delta_weights_matrix, learning_rate);
+
     for (int i = 0; i < delta_weights_matrix->rows; i++) {
-        for (int j = 0; j < delta_weights_matrix->columns; j++) {
-            network->weights[index]->numbers[i][j] += delta_weights_matrix->numbers[i][j]; // multiply delta_weights_matrix with learning rate AND - instead of + because soll-ist
+        for (int j = 0; j < scaled_delta_weights_matrix->columns; j++) {
+            network->weights[index]->numbers[i][j] += scaled_delta_weights_matrix->numbers[i][j]; // multiply delta_weights_matrix with learning rate AND - instead of + because soll-ist
         }
     }
+
+    matrix_free(scaled_delta_weights_matrix);
 }
 
-Matrix *calculate_weights_delta(Matrix *previous_layer_output, Matrix *delta_matrix, double learning_rate) {
+Matrix *calculate_weights_delta(Matrix *previous_layer_output, Matrix *delta_matrix) {
 
     Matrix* previous_out_with_one = matrix_add_bias(previous_layer_output);
     Matrix* transposed_previous_out_with_bias = transpose(previous_out_with_one);
     Matrix* weights_delta_matrix = dot(delta_matrix, transposed_previous_out_with_bias);
 
-    // scale by learning rate
-    Matrix* result = scale(weights_delta_matrix, learning_rate);
-
     matrix_free(previous_out_with_one);
     matrix_free(transposed_previous_out_with_bias);
-    matrix_free(weights_delta_matrix);
 
-    return result;
+    return weights_delta_matrix;
 }
 
 Matrix* sigmoid_derivative(Matrix* matrix) {
