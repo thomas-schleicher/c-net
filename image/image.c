@@ -2,8 +2,8 @@
 #include <stdlib.h>
 
 #include "image.h"
-#include "matrix.h"
-#include "util.h"
+#include "../matrix/matrix.h"
+#include "../util.h"
 
 void big_endian_to_c_uint(const char * bytes, void * target, int size) {
     char* helper = (char*)target;
@@ -68,8 +68,8 @@ Image * load_pgm_image(char * image_file_string){
 Image** import_images(char* image_file_string, char* label_file_string, int* _number_imported, int count) {
     printf("Loading Images\n");
     // create file pointer for the image and label data
-    FILE* image_file = fopen(image_file_string, "r");
-    FILE* label_file = fopen(label_file_string, "r");
+    FILE* image_file = fopen(image_file_string, "rb");
+    FILE* label_file = fopen(label_file_string, "rb");
 
     // check if the file could be opened
     if(image_file == NULL || label_file == NULL) {
@@ -89,7 +89,6 @@ Image** import_images(char* image_file_string, char* label_file_string, int* _nu
 
     fread(word_buffer, 4, 1, label_file);
     big_endian_to_c_uint(word_buffer, &label_count, buffer_size);
-
 
     //Read description of file
     fread(word_buffer, 4, 1, image_file);
@@ -160,7 +159,6 @@ Image** import_images(char* image_file_string, char* label_file_string, int* _nu
 }
 
 void img_print (Image* img) {
-
     //print the image
     matrix_print(img->pixel_values);
     //print the number of the image
@@ -184,7 +182,7 @@ void img_free (Image* img) {
     free(img);
 }
 
-void images_free (Image** images, int quantity){
+void images_free(Image** images, int quantity) {
     //frees every single image
     for(int i=0;i<quantity;i++){
         img_free(images[i]);
