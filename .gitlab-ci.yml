@@ -23,8 +23,11 @@ build:
   before_script:
     - apt update && apt -y install cmake
   script:
+    - echo BUILD_JOB_ID=$CI_JOB_ID >> CI_JOB_ID.env
+    - echo "Compiling the code..."
     - cmake .
     - cmake --build .
+
   artifacts:
     paths:
       - c_net
@@ -36,7 +39,8 @@ build:
 release:
   stage: release
   needs:
-    - build
+    - job: build
+
   release:
     tag_name: $CI_COMMIT_SHORT_SHA'
     description: "latest"
