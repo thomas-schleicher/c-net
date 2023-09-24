@@ -216,21 +216,6 @@ Matrix* scale(Matrix* matrix, double value) {
     return result_matrix;
 }
 
-Matrix* addScalar(Matrix* matrix, double value) {
-
-    // create a copy of the original matrix
-    Matrix* result_matrix = matrix_copy(matrix);
-
-    // iterate over all numbers in the matrix and add the scalar value
-    for (int i = 0; i < result_matrix->rows; i++) {
-        for (int j = 0; j < result_matrix->columns; j++) {
-            result_matrix->numbers[i][j] += value;
-        }
-    }
-
-    // return the copy
-    return result_matrix;
-}
 
 Matrix* transpose(Matrix* matrix) {
 
@@ -247,16 +232,6 @@ Matrix* transpose(Matrix* matrix) {
     // return the result matrix
     return result_matrix;
 
-}
-
-double matrix_sum(Matrix* matrix) {
-    double sum = 0;
-    for (int i = 0; i < matrix->rows; i++) {
-        for (int j = 0; j < matrix->columns; j++) {
-            sum += matrix->numbers[i][j];
-        }
-    }
-    return sum;
 }
 
 void matrix_save(Matrix* matrix, char* file_string){
