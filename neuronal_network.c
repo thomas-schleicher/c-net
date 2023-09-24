@@ -2,6 +2,7 @@
 #include "neuronal_network.h"
 #include <stdio.h>
 #include <math.h>
+#include "util.h"
 
 double sigmoid(double input);
 Matrix* predict(Neural_Network* network, Matrix* image_data);
@@ -45,9 +46,7 @@ void free_network(Neural_Network* network){
     free(network);
 }
 
-void save_network(Neural_Network* network) {
-
-    char* file_name = "../networks/newest_network.txt";
+void save_network(Neural_Network* network, char * file_name) {
 
     // create file
     FILE* save_file = fopen(file_name, "w");
@@ -117,7 +116,9 @@ void print_network(Neural_Network* network) {
 double measure_network_accuracy(Neural_Network* network, Image** images, int amount) {
     int num_correct = 0;
 
-    for (int i = 0; i < amount; i++) {
+    printf("evaluating network\n");
+    for (int i = 50001; i < amount; i++) {
+        updateBar(i*100/amount);
         Matrix* prediction = predict_image(network, images[i]);
 
         int guess = matrix_argmax(prediction);
@@ -129,6 +130,7 @@ double measure_network_accuracy(Neural_Network* network, Image** images, int amo
 
         matrix_free(prediction);
     }
+    updateBar(100);
     return ((double) num_correct) / amount;
 }
 

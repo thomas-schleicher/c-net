@@ -21,7 +21,7 @@ Neural_Network* new_network(int input_size, int hidden_size, int hidden_amount, 
 void randomize_network(Neural_Network* network, int scope);
 void free_network(Neural_Network* network);
 
-void save_network(Neural_Network* network);
+void save_network(Neural_Network* network, char * file_name);
 Neural_Network* load_network(char* file);
 
 void print_network(Neural_Network* network);
