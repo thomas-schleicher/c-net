@@ -37,6 +37,7 @@ build:
 
 
 release:
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
   stage: release
   needs:
     - job: build
