@@ -23,7 +23,7 @@ void parsingErrorTrain(){
 
 void parsingErrorDetect(){
     printf("invalid syntax\n");
-    printf("Syntax: c_net predict_demo [path_to_network] [image_file]");
+    printf("Syntax: c_net predict_demo [path_to_network] [image_file]\n");
 }
 
 void predict_demo(int argc, char** arguments){

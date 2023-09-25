@@ -26,6 +26,10 @@ void read_until_space_or_newline(char * buff, int maxCount, FILE * fptr){
 
 Image * load_pgm_image(char * image_file_string){
     FILE * fptr = fopen(image_file_string, "r");
+    if(!fptr){
+        printf("could not open image file. exit\n");
+        exit(1);
+    }
     Image *image = malloc(sizeof(Image));
     image->label = -1;
 
