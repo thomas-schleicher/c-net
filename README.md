@@ -1,10 +1,7 @@
-# C-net ඞ
+# C-net
 
 ## Description
-C-net ඞ is a C project designed to read and predict numbers from the MNIST dataset using neural networks.
-
-## Visuals
-![Insert GIF or Screenshot here](https://camo.githubusercontent.com/b308207b5c5ce0970b13c21609350fab21aa61a2fae56da2a6418d6fdcdbc079/68747470733a2f2f7777772e776f6c6672616d2e636f6d2f6d617468656d61746963612f6e65772d696e2d31302f656e68616e6365642d696d6167652d70726f63657373696e672f48544d4c496d616765732e656e2f68616e647772697474656e2d6469676974732d636c617373696669636174696f6e2f736d616c6c7468756d625f31302e676966)
+C-net is a C project designed to read and predict numbers from the MNIST dataset using neural networks.
 
 ## Roadmap
 
@@ -32,5 +29,3 @@ We would like to express our gratitude to the following sources, which served as
 
 ## Project Status
 The project is considered finished, but ongoing optimizations and improvements may still be in progress.
-
-![amogus](https://media.tenor.com/7kpsm7kU330AAAAd/sussy-among-us.gif)
